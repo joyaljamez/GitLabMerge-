@@ -10,7 +10,6 @@
     // todo
     setTimeout(() => {
         postMsg('init', oldState.repoPath);
-        postMsg('getLabels'); 
     }, 500);
 
     // repo tab
@@ -298,7 +297,7 @@
         if (!select) return;
     
         select.innerHTML = labels.map(label => 
-            `<option value="${label.id}">${label.name}</option>`
+            `<option value="${label.name}">${label.name}</option>`
         ).join('');
     }
     

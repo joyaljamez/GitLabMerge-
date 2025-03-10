@@ -67,11 +67,7 @@ class Api {
 	}
 
 	getLabels() {
-		return this.axios.get(`/projects/${this.id}/labels`, {
-			params: {
-				per_page: 100
-			}
-		});
+		return this.axios.get(`/projects/${this.id}/labels`);
 	}
 
 

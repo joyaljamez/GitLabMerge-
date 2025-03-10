@@ -243,6 +243,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
       this.getBranches(branches);
       await this.getUsers();
       await this.getReviewers();
+      await this.getLabels();
     } else {
       log("Failed to fetch repository info!");
     }
