@@ -86,7 +86,7 @@
 	"scripts": {
 		"vscode:prepublish": "npm run package",
 		"compile": "webpack",
-		"watch": "webpack --watch",
+		"watch": "NODE_OPTIONS=--openssl-legacy-provider webpack --watch",
 		"package": "webpack --mode production --devtool hidden-source-map",
 		"test-compile": "tsc -p ./",
 		"test-watch": "tsc -watch -p ./",
