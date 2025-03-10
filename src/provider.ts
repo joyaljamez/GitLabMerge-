@@ -139,7 +139,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
 
 
                     <p class="mrt-label">Labels</p>
-                    <select multiple class="mrt-labels-select form" name="labels" multiple>
+                    <select multiple class="mrt-labels-select form" name="labels">
                     </select>
 
 
