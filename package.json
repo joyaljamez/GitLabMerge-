@@ -36,7 +36,7 @@
 			]
 		},
 		"configuration": {
-			"title": "GitlabMrt",
+			"title": "GitLabMerge+",
 			"properties": {
 				"gitlabmrt.instanceUrl": {
 					"type": "string",

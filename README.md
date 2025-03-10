@@ -1,4 +1,4 @@
-# gitlab-mrt README
+# GitLabMerge+ README
 
 Gitlab Merge Request Helper fo VS Code.
 
