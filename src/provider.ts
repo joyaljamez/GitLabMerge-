@@ -1,75 +1,84 @@
-import * as vscode from 'vscode';
-import GitExtensionWrap from './git';
-import { MRParams, ExtensionConfig } from './type';
-import Api from './api';
-import { validateForm, info, log, withProgress } from './utils';
+import * as vscode from "vscode";
+import GitExtensionWrap from "./git";
+import { MRParams, ExtensionConfig } from "./type";
+import Api from "./api";
+import { validateForm, info, log, withProgress } from "./utils";
 
 let n = 0;
 export default class MergeProvider implements vscode.WebviewViewProvider {
+  public static readonly viewType: string = "gitlab.mrt";
+  private _view?: vscode.WebviewView;
+  private git?: GitExtensionWrap;
+  private api?: Api;
+  private config: ExtensionConfig = {};
+  public gitUrl?: string;
+  public repoPath?: string;
 
-    public static readonly viewType: string = 'gitlab.mrt';
-    private _view?: vscode.WebviewView;
-    private git?: GitExtensionWrap;
-    private api?: Api;
-    private config: ExtensionConfig = {};
-    public gitUrl?: string;
-    public repoPath?: string;
-    
-    constructor(private readonly _extensionUri: vscode.Uri) {}
+  constructor(private readonly _extensionUri: vscode.Uri) {}
 
-    public resolveWebviewView(
-        webviewView: vscode.WebviewView,
-        context: vscode.WebviewViewResolveContext,
-        _token: vscode.CancellationToken
-    ) {
-        this._view = webviewView;
+  public resolveWebviewView(
+    webviewView: vscode.WebviewView,
+    context: vscode.WebviewViewResolveContext,
+    _token: vscode.CancellationToken
+  ) {
+    this._view = webviewView;
 
-        webviewView.webview.options = {
-            // Allow scripts in the webview
-			enableScripts: true,
-            localResourceRoots: [
-				this._extensionUri
-			]
-        };
+    webviewView.webview.options = {
+      // Allow scripts in the webview
+      enableScripts: true,
+      localResourceRoots: [this._extensionUri],
+    };
 
-        webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+    webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-        webviewView.webview.onDidReceiveMessage(msg => {
-			switch (msg.type) {
-                case 'init': 
-                    this.init(msg.data);
-                    break;
-                case 'submitMR':
-                    this.submitMR(msg.data);
-                    break;
-                case 'searchUser':
-                    this.getUsers(msg.data);
-                    break;
-                case 'searchReviewer':
-                    this.getReviewers(msg.data);
-                    break;
-                case 'setting':
-                    vscode.commands.executeCommand(
-                        'workbench.action.openSettings',
-                        `gitlabmrt`,
-                    );
-                    break;
-                case 'repoChange':
-                    this.setupRepo(msg.data);
-			}
-		});
-    }
+    webviewView.webview.onDidReceiveMessage((msg) => {
+      switch (msg.type) {
+        case "init":
+          this.init(msg.data);
+          break;
+        case "submitMR":
+          this.submitMR(msg.data);
+          break;
+        case "searchUser":
+          this.getUsers(msg.data);
+          break;
+        case "searchReviewer":
+          this.getReviewers(msg.data);
+          break;
+        case "setting":
+          vscode.commands.executeCommand(
+            "workbench.action.openSettings",
+            `gitlabmrt`
+          );
+          break;
+        case "repoChange":
+          this.setupRepo(msg.data);
+            break;
+        case "getLabels":
+            this.getLabels();
+            break;
+      }
+    });
+  }
 
-    private _getHtmlForWebview(webview: vscode.Webview) {
-        const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'src', 'assets', 'main.js'));
+  private _getHtmlForWebview(webview: vscode.Webview) {
+    const scriptUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, "src", "assets", "main.js")
+    );
 
-        const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'src', 'assets', 'vscode.css'));
-        const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'src', 'assets', 'reset.css'));
-		const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'src', 'assets', 'main.css'));
+    const styleVSCodeUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, "src", "assets", "vscode.css")
+    );
+    const styleResetUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, "src", "assets", "reset.css")
+    );
+    const styleMainUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, "src", "assets", "main.css")
+    );
 
-        const nonce = getNonce();
+    const nonce = getNonce();
 
-        return `<!DOCTYPE html>
+    return `<!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
@@ -128,6 +137,12 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
                         </div>
                     </div>
 
+
+                    <p class="mrt-label">Labels</p>
+                    <select multiple class="mrt-labels-select form" name="labels" multiple>
+                    </select>
+
+
                     <div class="mrt-checkbox">
                         <input id="deleteSourceBranch" class="checkbox" checked type="checkbox" name="remove_source_branch">
                         <label for="deleteSourceBranch">Delete source branch when merge request is accepted.</label>
@@ -151,121 +166,136 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
             <script nonce="${nonce}" src="${scriptUri}"></script>
         </body>
         </html>`;
+  }
+
+  async submitMR(data: MRParams) {
+    const result = validateForm(data);
+    if (result !== true) {
+      return;
     }
 
-    async submitMR(data: MRParams) {
-        const result = validateForm(data);
-        if (result !== true) {
-            return;
-        };
-
-        const { res: promiseRes } = await withProgress('Submit MR');
-        const res = await this.api?.submitMR(data).catch(promiseRes);
-        promiseRes();
-        if (res) {
-            info('create success', 'Open MR').then((item) => {
-                if (item === 'Open MR' && res.data.web_url) {
-                    const url = res.data.web_url.replace(/^http(s)?:\/\/[^\/]+/, this.config.instanceUrl || '');
-                    vscode.env.openExternal(vscode.Uri.parse(url));
-                }
-            });
+    const { res: promiseRes } = await withProgress("Submit MR");
+    const res = await this.api?.submitMR(data).catch(promiseRes);
+    promiseRes();
+    if (res) {
+      info("create success", "Open MR").then((item) => {
+        if (item === "Open MR" && res.data.web_url) {
+          const url = res.data.web_url.replace(
+            /^http(s)?:\/\/[^\/]+/,
+            this.config.instanceUrl || ""
+          );
+          vscode.env.openExternal(vscode.Uri.parse(url));
         }
+      });
+    }
+  }
+
+  async init(repoPath?: string) {
+    this.getConfig();
+
+    const tipsVisible = !this.config.token;
+    this.postMsg("viewTips", tipsVisible);
+    if (tipsVisible) {
+      return;
     }
 
-    async init(repoPath?: string) {
-        this.getConfig();
+    this.repoPath = repoPath || this.repoPath || "";
 
-        const tipsVisible = !this.config.token;
-        this.postMsg('viewTips', tipsVisible);
-        if (tipsVisible) {
-            return;
-        }
-
-        this.repoPath = repoPath || this.repoPath || '';
-
-        const { progress, res: promiseRes } = await withProgress('Initializing git repository');
-        const fn = async() => {
-            try {
-                this.git = new GitExtensionWrap();
-                await this.git.init(this.repoPath || '', (paths) => {
-                    this.postMsg('updateRepoTab', paths);
-                });
-                await this.setupRepo();
-            } catch(err) {
-            }
-            if (n < 10 && !this.api?.id) {
-                n++;
-                await new Promise(res => setTimeout(res, 1000));
-                await fn();
-            }
-        };
+    const { progress, res: promiseRes } = await withProgress(
+      "Initializing git repository"
+    );
+    const fn = async () => {
+      try {
+        this.git = new GitExtensionWrap();
+        await this.git.init(this.repoPath || "", (paths) => {
+          this.postMsg("updateRepoTab", paths);
+        });
+        await this.setupRepo();
+      } catch (err) {}
+      if (n < 10 && !this.api?.id) {
+        n++;
+        await new Promise((res) => setTimeout(res, 1000));
         await fn();
-        promiseRes();
+      }
+    };
+    await fn();
+    promiseRes();
+  }
+
+  async setupRepo(path?: string) {
+    if (!this.git) {
+      return;
     }
 
-    async setupRepo(path?: string) {
-        if (!this.git) {
-            return;
-        }
-
-        if (path) {
-            this.git.repoPath = path;
-        }
-
-        const {branches, currentBranchName, projectName, url } = await this.git.getInfo();
-        this.gitUrl = url;
-        this.postMsg('currentBranch', currentBranchName);
-        this.api = new Api(this.config);
-        await this.api.getProject(projectName, url);
-
-        if (this.api.id) {
-            // this.postMsg('branches', branches.map(v => v.type === 1) || []);
-            this.getBranches(branches);
-            await this.getUsers();
-            await this.getReviewers();
-        } else {
-            log('Failed to fetch repository info!');
-        }
+    if (path) {
+      this.git.repoPath = path;
     }
 
-    getConfig() {
-        const { instanceUrl, token } = vscode.workspace.getConfiguration('gitlabmrt');
-        this.config = { instanceUrl, token };
-    }
+    const { branches, currentBranchName, projectName, url } =
+      await this.git.getInfo();
+    this.gitUrl = url;
+    this.postMsg("currentBranch", currentBranchName);
+    this.api = new Api(this.config);
+    await this.api.getProject(projectName, url);
 
-    getBranches(branches: any[]) {
-        const data = branches.filter(v => v.type === 1 && !v.name.includes('HEAD')).map(v => {
-            v.name = v.name.replace('origin/', '');
-            return v;
-        });
-        // this.api?.getBranches().then(res => {
-        this.postMsg('branches', data || []);
-        // });
+    if (this.api.id) {
+      // this.postMsg('branches', branches.map(v => v.type === 1) || []);
+      this.getBranches(branches);
+      await this.getUsers();
+      await this.getReviewers();
+    } else {
+      log("Failed to fetch repository info!");
     }
+  }
 
-    getUsers(name?: string) {
-        this.api?.getUsers(name).then(res => {
-            this.postMsg('users', res.data);
-        });
-    }
+  getConfig() {
+    const { instanceUrl, token } =
+      vscode.workspace.getConfiguration("gitlabmrt");
+    this.config = { instanceUrl, token };
+  }
 
-    // 搜索Reviewer
-    getReviewers(name?: string) {
-        this.api?.getUsers(name).then(res => {
-            this.postMsg('reviewers', res.data);
-        });
-    }
+  getBranches(branches: any[]) {
+    const data = branches
+      .filter((v) => v.type === 1 && !v.name.includes("HEAD"))
+      .map((v) => {
+        v.name = v.name.replace("origin/", "");
+        return v;
+      });
+    // this.api?.getBranches().then(res => {
+    this.postMsg("branches", data || []);
+    // });
+  }
 
-    postMsg(type: string, data: any) {
-        this._view?.webview.postMessage({ type, data });
-    }
+  getUsers(name?: string) {
+    this.api?.getUsers(name).then((res) => {
+      this.postMsg("users", res.data);
+    });
+  }
+
+  // 搜索Reviewer
+  getReviewers(name?: string) {
+    this.api?.getUsers(name).then((res) => {
+      this.postMsg("reviewers", res.data);
+    });
+  }
+
+  getLabels() {
+    this.api?.getLabels().then((res) => {
+        this.postMsg("labels", res.data);
+    });
+}
+
+  postMsg(type: string, data: any) {
+    this._view?.webview.postMessage({ type, data });
+  }
 }
 
 function getNonce() {
-	let text = '';
-	const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	for (let i = 0; i < 32; i++) {
-		text += possible.charAt(Math.floor(Math.random() * possible.length));
-	}
-	return text;
+  let text = "";
+  const possible =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  for (let i = 0; i < 32; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
 }

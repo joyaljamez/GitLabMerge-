@@ -66,6 +66,15 @@ class Api {
 		});
 	}
 
+	getLabels() {
+		return this.axios.get(`/projects/${this.id}/labels`, {
+			params: {
+				per_page: 100
+			}
+		});
+	}
+
+
 	submitMR(data: MRParams) {
 		return this.axios.post<CreateMrResponse>(`/projects/${this.id}/merge_requests`, data);
 	}

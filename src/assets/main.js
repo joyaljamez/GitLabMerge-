@@ -10,6 +10,7 @@
     // todo
     setTimeout(() => {
         postMsg('init', oldState.repoPath);
+        postMsg('getLabels'); 
     }, 500);
 
     // repo tab
@@ -54,8 +55,13 @@
         const data = {};
         formItems.forEach(item => {
             const name = item.getAttribute('name');
-            data[name] = item.value;
-            if(name === 'reviewer_id' && item.value){
+            if (item.tagName === 'SELECT' && item.multiple) {
+                const selectedValues = Array.from(item.selectedOptions).map(opt => opt.value);
+                data[name] = selectedValues;
+            } else {
+                data[name] = item.value;
+            }
+            if (name === 'reviewer_id' && item.value) {
                 data.reviewer_ids = [Number(item.value)];
             }
         });
@@ -206,6 +212,9 @@
             case 'reviewers':
                 updateUsers(msg.data, 'reviewer');
                 break;
+            case 'labels':
+                updateLabels(msg.data);  // 🔥 Add this
+                break;
             case 'updateRepoTab':
                 updateRepoTab(msg.data);
                 break;
@@ -284,6 +293,15 @@
         // 默认选中第一个
         // query(`.${type} .mrt-user-item[data-id='${}']`)?.classList?.add('active');
     }
+    function updateLabels(labels = []) {
+        const select = query('.mrt-labels-select'); // Adjust this selector based on your HTML
+        if (!select) return;
+    
+        select.innerHTML = labels.map(label => 
+            `<option value="${label.id}">${label.name}</option>`
+        ).join('');
+    }
+    
 
     function setTitle() {
         const dom = query('.mrt-title');
