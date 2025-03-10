@@ -30,7 +30,7 @@
 			"activitybar": [
 				{
 					"id": "gitlab-mrt",
-					"title": "Gitlab Mrt",
+					"title": "GitLabMerge+",
 					"icon": "src/assets/gitlab.svg"
 				}
 			]
