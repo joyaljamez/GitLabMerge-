@@ -10,9 +10,9 @@ Gitlab Merge Request Helper fo VS Code.
 
 ## Extension Settings
 
-+ `gitlabmrt.token`: Access token to use to connect to the Gitlab.com API. Create one by going to Profile Settings -> Access Tokens.
++ `gitlabmergeplus.token`: Access token to use to connect to the Gitlab.com API. Create one by going to Profile Settings -> Access Tokens.
 
-+ `gitlabmrt.instanceUrl`: If you are using GitLab on a custom domain, you must add this to your user settings file.
++ `gitlabmergeplus.instanceUrl`: If you are using GitLab on a custom domain, you must add this to your user settings file.
 
 VS Code settings:
 
@@ -22,8 +22,8 @@ settings.json:
 
 ```json
 {
-    "gitlabmrt.token": "xxx",
-    "gitlabmrt.instanceUrl": "https://git.xxx.com"
+    "gitlabmergeplus.token": "xxx",
+    "gitlabmergeplus.instanceUrl": "https://git.xxx.com"
 }
 ```
 

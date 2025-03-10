@@ -38,12 +38,12 @@
 		"configuration": {
 			"title": "GitLabMerge+",
 			"properties": {
-				"gitlabmrt.instanceUrl": {
+				"gitlabmergeplus.instanceUrl": {
 					"type": "string",
 					"default": "https://gitlab.com",
 					"description": "Your GitLab instance URL"
 				},
-				"gitlabmrt.token": {
+				"gitlabmergeplus.token": {
 					"type": "string",
 					"default": "",
 					"description": "Access token to use to connect to the Gitlab API"
