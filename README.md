@@ -2,11 +2,13 @@
 
 Gitlab Merge Request Helper fo VS Code.
 
-![](src/assets/view.jpg)
+Author: [Joyal James]
+
+![](src/assets/view.png)
 
 ## Features
 
-+ Create an MR from VS Code
++ Create an Merge Requests from VS Code
 
 ## Extension Settings
 
@@ -16,7 +18,7 @@ Gitlab Merge Request Helper fo VS Code.
 
 VS Code settings:
 
-![](src/assets/setting.jpg)
+![](src/assets/setting.png)
 
 settings.json:
 
@@ -29,6 +31,5 @@ settings.json:
 
 ### Links
 
-+ Visual Studio Marketplace: [https://marketplace.visualstudio.com/items?itemName=zhaoqing.gitlabmrt](https://marketplace.visualstudio.com/items?itemName=zhaoqing.gitlabmrt)
-
-* Github Repo: [https://github.com/CDTRSFE/gitlab-mrt](https://github.com/CDTRSFE/gitlab-mrt)
++ Visual Studio Marketplace: []()
+* Github Repo: []()

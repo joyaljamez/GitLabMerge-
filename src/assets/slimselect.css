@@ -1,6 +1,6 @@
 :root {
     --ss-primary-color: var(--vscode-list-activeSelectionBackground);  /* Selected item bg (blue by default) */
-    --ss-bg-color: var(--vscode-dropdown-background);                  /* Matches dropdown background */
+    --ss-bg-color: var(--vscode-input-background);                  /* Matches dropdown background */
     --ss-font-color: var(--vscode-input-foreground);                /* Text color in dropdown */
     --ss-font-placeholder-color: var(--vscode-input-placeholderForeground); /* Placeholder text */
     --ss-disabled-color: var(--vscode-disabledForeground);             /* Disabled element text/icon */
@@ -174,7 +174,7 @@
 
 .ss-main .ss-values .ss-value .ss-value-delete svg path {
     fill: none;
-    stroke: var(--ss-bg-color);
+    stroke: var(--ss-font-color);
     stroke-width: 18;
     stroke-linecap: round;
     stroke-linejoin: round
@@ -208,8 +208,8 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     margin: auto var(--ss-spacing-m) auto var(--ss-spacing-m)
 }
 
