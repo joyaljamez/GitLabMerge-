@@ -57,10 +57,14 @@ textarea {
     box-sizing: content-box;
     line-height: 18px;
     padding: var(--input-padding-vertical) var(--input-padding-horizontal);
-	color: var(--vscode-input-foreground);
+    color: var(--vscode-input-foreground);
     background-color: var(--vscode-input-background);
     border: 1px solid var(--vscode-input-border, transparent);
     border-radius: var(--gm-border-radius);
+    -webkit-border-radius: var(--gm-border-radius);
+    -moz-border-radius: var(--gm-border-radius);
+    -ms-border-radius: var(--gm-border-radius);
+    -o-border-radius: var(--gm-border-radius);
 }
 .del-icon {
     position: absolute;
