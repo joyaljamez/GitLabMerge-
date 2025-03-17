@@ -32,4 +32,4 @@ settings.json:
 ### Links
 
 + Visual Studio Marketplace: []()
-* Github Repo: []()
+* Github Repo: [GitLabMerge+](https://github.com/joyaljamez/GitLabMerge-)
