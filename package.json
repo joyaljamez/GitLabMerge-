@@ -1,5 +1,5 @@
 {
-	"name": "GitLabMerge+",
+	"name": "GitLabMerge",
 	"displayName": "GitLabMerge",
 	"description": "Create MRs in Gitlab from VS Code",
 	"publisher": "JoyalJames",
