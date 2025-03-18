@@ -259,7 +259,9 @@
         if (oldState && oldState.targetBranch && branches.includes(v => v.name === oldState.targetBranch)) {
             value = oldState.targetBranch;
         } else {
-            const item = branches.find(({ name }) => ['master', 'dev'].includes(name));
+            const item = branches.find(({ name }) =>
+              ["master", "dev", "develop"].includes(name)
+            );
             value = item?.name;
         }
         if (!value) {

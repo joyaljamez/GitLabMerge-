@@ -1,4 +1,4 @@
-# GitLabMerge+ README
+# GitLabMerge README
 
 Gitlab Merge Request Helper fo VS Code.
 
@@ -32,4 +32,4 @@ settings.json:
 ### Links
 
 + Visual Studio Marketplace: []()
-* Github Repo: [GitLabMerge+](https://github.com/joyaljamez/GitLabMerge-)
+* Github Repo: [GitLabMerge](https://github.com/joyaljamez/GitLabMerge-)

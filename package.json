@@ -3,7 +3,7 @@
 	"displayName": "GitLabMerge",
 	"description": "Create MRs in Gitlab from VS Code",
 	"publisher": "JoyalJames",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"icon": "src/assets/icon.png",
 	"repository": "https://github.com/joyaljamez/GitLabMerge-.git",
 	"engines": {
@@ -30,13 +30,13 @@
 			"activitybar": [
 				{
 					"id": "gitlab-mrt",
-					"title": "GitLabMerge+",
+					"title": "GitLabMerge",
 					"icon": "src/assets/gitlab.svg"
 				}
 			]
 		},
 		"configuration": {
-			"title": "GitLabMerge+",
+			"title": "GitLabMerge",
 			"properties": {
 				"gitlabmergeplus.instanceUrl": {
 					"type": "string",

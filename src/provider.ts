@@ -229,8 +229,13 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
         await new Promise((res) => setTimeout(res, 1000));
         await fn();
       }
+   
     };
     await fn();
+    //still Api id cannot be fetched then log error
+    if (!this.api?.id) {
+      log("Failed to fetch repository info!");
+    }
     promiseRes();
   }
 
@@ -257,7 +262,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
       await this.getReviewers();
       await this.getLabels();
     } else {
-      log("Failed to fetch repository info!");
+      // log("Failed to fetch repository info!");
     }
   }
 
