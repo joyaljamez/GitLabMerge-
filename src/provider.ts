@@ -190,13 +190,20 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
     const res = await this.api?.submitMR(data).catch(promiseRes);
     promiseRes();
     if (res) {
-      info("create success", "Open MR").then((item) => {
+      info("create success", "Open MR", "Copy URL").then((item) => {
         if (item === "Open MR" && res.data.web_url) {
           const url = res.data.web_url.replace(
-            /^http(s)?:\/\/[^\/]+/,
-            this.config.instanceUrl || ""
+        /^http(s)?:\/\/[^\/]+/,
+        this.config.instanceUrl || ""
           );
           vscode.env.openExternal(vscode.Uri.parse(url));
+        } else if (item === "Copy URL" && res.data.web_url) {
+          const url = res.data.web_url.replace(
+        /^http(s)?:\/\/[^\/]+/,
+        this.config.instanceUrl || ""
+          );
+          vscode.env.clipboard.writeText(url);
+          vscode.window.showInformationMessage("URL copied to clipboard!");
         }
       });
     }
