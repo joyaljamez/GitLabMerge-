@@ -3,6 +3,7 @@ import GitExtensionWrap from "./git";
 import { MRParams, ExtensionConfig } from "./type";
 import Api from "./api";
 import { validateForm, info, log, withProgress } from "./utils";
+import {SharedStore} from "./assets/store";
 
 let n = 0;
 export default class MergeProvider implements vscode.WebviewViewProvider {
@@ -53,10 +54,9 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
           break;
         case "repoChange":
           this.setupRepo(msg.data);
-            break;
+          break;
         case "getLabels":
-            this.getLabels();
-            break;
+          this.getLabels();
       }
     });
   }
@@ -66,7 +66,12 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
       vscode.Uri.joinPath(this._extensionUri, "src", "assets", "main.js")
     );
     const slimSelectUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "src", "assets", "slimselect.min.js")
+      vscode.Uri.joinPath(
+        this._extensionUri,
+        "src",
+        "assets",
+        "slimselect.min.js"
+      )
     );
 
     const styleVSCodeUri = webview.asWebviewUri(
@@ -193,14 +198,14 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
       info("create success", "Open MR", "Copy URL").then((item) => {
         if (item === "Open MR" && res.data.web_url) {
           const url = res.data.web_url.replace(
-        /^http(s)?:\/\/[^\/]+/,
-        this.config.instanceUrl || ""
+            /^http(s)?:\/\/[^\/]+/,
+            this.config.instanceUrl || ""
           );
           vscode.env.openExternal(vscode.Uri.parse(url));
         } else if (item === "Copy URL" && res.data.web_url) {
           const url = res.data.web_url.replace(
-        /^http(s)?:\/\/[^\/]+/,
-        this.config.instanceUrl || ""
+            /^http(s)?:\/\/[^\/]+/,
+            this.config.instanceUrl || ""
           );
           vscode.env.clipboard.writeText(url);
           vscode.window.showInformationMessage("URL copied to clipboard!");
@@ -236,12 +241,13 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
         await new Promise((res) => setTimeout(res, 1000));
         await fn();
       }
-   
     };
     await fn();
     //still Api id cannot be fetched then log error
     if (!this.api?.id) {
       log("Failed to fetch repository info!");
+    } else {
+      SharedStore.instance.markReady(this.api.id);
     }
     promiseRes();
   }
@@ -306,9 +312,9 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
 
   getLabels() {
     this.api?.getLabels().then((res) => {
-        this.postMsg("labels", res.data);
+      this.postMsg("labels", res.data);
     });
-}
+  }
 
   postMsg(type: string, data: any) {
     this._view?.webview.postMessage({ type, data });
