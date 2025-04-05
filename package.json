@@ -3,7 +3,7 @@
   "displayName": "GitLabMerge",
   "description": "Create MRs in Gitlab from VS Code",
   "publisher": "JoyalJames",
-  "version": "0.0.3",
+  "version": "2.0.0",
   "icon": "src/assets/icon.png",
   "repository": "https://github.com/joyaljamez/GitLabMerge-.git",
   "engines": {
@@ -124,10 +124,10 @@
     "ts-loader": "^9.2.2",
     "typescript": "^4.3.2",
     "vscode-test": "^1.5.2",
-    "webpack": "^5.38.1",
-    "webpack-cli": "^4.7.0"
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1"
   },
   "dependencies": {
-    "axios": "^0.23.0"
+    "axios": "^1.8.4"
   }
 }
