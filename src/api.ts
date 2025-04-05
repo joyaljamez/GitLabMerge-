@@ -70,6 +70,14 @@ class Api {
 		return this.axios.get(`/projects/${this.id}/labels`);
 	}
 
+	getMyCreatedMergeRequests(){
+		return this.axios.get<GitlabProject[]>(`/projects/${this.id}/merge_requests?scope=created_by_me&state=opened`, {
+			params: {
+				per_page: 100,
+			}
+		});
+	}
+
 
 	submitMR(data: MRParams) {
 		return this.axios.post<CreateMrResponse>(`/projects/${this.id}/merge_requests`, data);
