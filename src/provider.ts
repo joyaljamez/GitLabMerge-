@@ -191,7 +191,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
       return;
     }
 
-    const { res: promiseRes } = await withProgress("Submit MR");
+    const { res: promiseRes } = await withProgress("Submitting merge request");
     const res = await this.api?.submitMR(data).catch(promiseRes);
     promiseRes();
     if (res) {
@@ -211,6 +211,8 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
           vscode.window.showInformationMessage("URL copied to clipboard!");
         }
       });
+      //refetch MR list
+      SharedStore.instance.triggerRefresh();
     }
   }
 

@@ -27,6 +27,10 @@ export default class ListMRProvider implements vscode.WebviewViewProvider {
       this.api.id = Number(id);
       this.getMyCreatedMergeRequests();
     });
+
+    SharedStore.instance.onRefresh(() => {
+      this.getMyCreatedMergeRequests();
+    });
   }
   getConfig() {
     const { instanceUrl, token } =
@@ -40,7 +44,12 @@ export default class ListMRProvider implements vscode.WebviewViewProvider {
       vscode.Uri.joinPath(this._extensionUri, "src", "assets", "main-panel2.js")
     );
     const styleMainUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "src", "assets", "main-panel2.css")
+      vscode.Uri.joinPath(
+        this._extensionUri,
+        "src",
+        "assets",
+        "main-panel2.css"
+      )
     );
     return `<!DOCTYPE html>
     <html lang="en">
@@ -56,7 +65,12 @@ export default class ListMRProvider implements vscode.WebviewViewProvider {
     </body>
     </html>`;
   }
-  public refresh(): void {}
+
+  public async refresh(): Promise<void> {
+    const { res: promiseRes } = await withProgress("Reloading Merge Requests");
+    this.getMyCreatedMergeRequests();
+    promiseRes();
+  }
 
   postMsg(type: string, data: any) {
     this._view?.webview.postMessage({ type, data });

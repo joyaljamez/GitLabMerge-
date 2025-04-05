@@ -1,9 +1,13 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
 export class SharedStore {
   private static _instance: SharedStore;
+
   private _onReady = new vscode.EventEmitter<string>();
   public onReady = this._onReady.event;
+
+  private _onRefresh = new vscode.EventEmitter<void>();
+  public onRefresh = this._onRefresh.event;
 
   public apiId: number | null = null;
   public isReady = false;
@@ -21,5 +25,9 @@ export class SharedStore {
     this.apiId = id;
     this.isReady = true;
     this._onReady.fire(id.toString());
+  }
+
+  triggerRefresh() {
+    this._onRefresh.fire();
   }
 }
