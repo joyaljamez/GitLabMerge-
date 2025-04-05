@@ -39,16 +39,19 @@ export default class ListMRProvider implements vscode.WebviewViewProvider {
     const scriptUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, "src", "assets", "main-panel2.js")
     );
+    const styleMainUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, "src", "assets", "main-panel2.css")
+    );
     return `<!DOCTYPE html>
     <html lang="en">
     <head>
       <meta charset="UTF-8">
       <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
-      <title>Merge Requests</title>
+      <link href="${styleMainUri}" rel="stylesheet">
+      <title>My Merge Requests</title>
     </head>
     <body>
-      <h3>Merge Requests</h3>
-      <ul id="mrt-my-mrs"></ul>
+      <div id="mrt-my-mrs"></div>
       <script nonce="${nonce}" src="${scriptUri}"></script>
     </body>
     </html>`;

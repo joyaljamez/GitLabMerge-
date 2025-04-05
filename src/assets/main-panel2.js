@@ -20,15 +20,35 @@
   });
 
   function setMyMRs(data) {
-    const dom = query("#mrt-my-mrs");
-    if (data && data.length > 0) {
-      dom.innerHTML = data
-        .map((item) => {
-          return `<li>${item?.title} - <a href="${item?.web_url}" target="_blank">Open</a></li>`;
-        })
-        .join("");
-    } else {
-      dom.innerHTML = "<li>No MRs found</li>";
+    const container = query("#mrt-my-mrs");
+    if (!data || data.length === 0) {
+      container.innerHTML = "<p>No Merge Requests found.</p>";
+      return;
     }
+
+    container.innerHTML = data
+      .map(
+      (item, index) => `
+      <details>
+      <summary>${item.title}</summary>
+      <div">
+        <p><strong>Branch:</strong> ${item.source_branch} → ${
+        item.target_branch
+      }</p>
+      ${
+        item.labels && item.labels.length > 0
+        ? `<p><strong>Labels:</strong></p>
+           <ul>
+           ${item.labels.map((label) => `<li>${label}</li>`).join("")}
+           </ul>`
+        : ""
+      }
+      <p><a href="${item.web_url}" target="_blank">Open</a></p>
+        
+      </div>
+      </details>
+    `
+      )
+      .join("");
   }
 })();
