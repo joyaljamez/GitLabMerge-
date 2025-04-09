@@ -28,20 +28,20 @@
 
     container.innerHTML = data
       .map(
-      (item, index) => `
+        (item, index) => `
       <details>
-      <summary>${item.title}</summary>
+      <summary class="${item.has_conflicts ? "conflict" : "normal"}">${item.title}</summary>
       <div">
         <p><strong>Branch:</strong> ${item.source_branch} → ${
-        item.target_branch
-      }</p>
+          item.target_branch
+        }</p>
       ${
         item.labels && item.labels.length > 0
-        ? `<p><strong>Labels:</strong></p>
+          ? `<p><strong>Labels:</strong></p>
            <ul>
            ${item.labels.map((label) => `<li>${label}</li>`).join("")}
            </ul>`
-        : ""
+          : ""
       }
       <p><a href="${item.web_url}" target="_blank">Open</a></p>
         

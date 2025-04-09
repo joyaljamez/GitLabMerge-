@@ -5,6 +5,7 @@
     --ss-spacing-l: 7px;
     --ss-spacing-m: 5px;
     --ss-spacing-s: 3px;
+    --ss-error-color: #dc3545;
 }
 
 html {
@@ -36,8 +37,13 @@ summary {
     color: var(--vscode-input-foreground);
     padding: 0 var(--ss-spacing-m);
 }
-
-
-summary::-webkit-details-marker {
+summary.normal::marker {
     color: var(--vscode-input-foreground);
 }
+summary.conflict::marker {
+    color: var(--ss-error-color);
+}
+
+
+
+
