@@ -6,6 +6,7 @@
     --ss-spacing-m: 5px;
     --ss-spacing-s: 3px;
     --ss-error-color: #dc3545;
+    --ss-success-color: #00b755;
 }
 
 html {
@@ -37,13 +38,20 @@ summary {
     color: var(--vscode-input-foreground);
     padding: 0 var(--ss-spacing-m);
 }
-summary.normal::marker {
-    color: var(--vscode-input-foreground);
-}
+
 summary.conflict::marker {
     color: var(--ss-error-color);
 }
 
+summary.normal::marker {
+    color: var(--vscode-input-foreground);
+}
 
+a {
+    outline: none;
+    text-decoration: none;
+}
 
-
+a:focus {
+    outline: none;
+}
