@@ -72,12 +72,10 @@ class Api {
   }
 
   getUsers(name?: string) {
-    return this.axios.get<GitlabUsers[]>("/users", {
+    return this.axios.get<GitlabUsers[]>(`/projects/${this.id}/members/all`, {
       params: {
-        active: true,
-        project_id: this.id,
+        query: name, // for filtering by name
         per_page: 100,
-        search: name,
       },
     });
   }
