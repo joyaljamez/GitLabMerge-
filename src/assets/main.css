@@ -1,7 +1,12 @@
+:root {
+    --ss-font-color: var(--vscode-input-foreground);
+}
+
 body {
     --mrt-border-color: rgba(100, 100, 100, .22);
     overflow-x: hidden;
 }
+
 .vscode-dark {
     --mrt-border-color: rgba(128, 128, 128, .40);
 }
@@ -9,36 +14,51 @@ body {
 .mrt-wrap {
     padding: 0 var(--container-padding);
 }
+
 .mrt-wrap.hidden {
     display: none;
 }
+
+.mrt-form.hidden {
+    display: none;
+}
+
+
 .mrt-wrap .mrt-form {
     display: block;
 }
+
 .mrt-wrap .mrt-tips {
     display: none;
 }
+
 .mrt-wrap.show-tips .mrt-form {
     display: none;
 }
+
 .mrt-wrap.show-tips .mrt-tips {
     display: block;
 }
+
 .mrt-tips p {
     margin-top: 10px;
     line-height: 1.4em;
     color: var(--vscode-editor-foreground);
 }
+
 .mrt-tips button {
     margin-top: 10px;
-} 
+}
+
 .mrt-label {
     margin: 10px 0;
     color: var(--vscode-descriptionForeground);
 }
+
 textarea {
     resize: none;
 }
+
 .mrt-assignee-id,
 .mrt-reviewer-id {
     display: inline-block;
@@ -48,11 +68,13 @@ textarea {
     padding: 0 !important;
     position: absolute;
 }
+
 .mrt-user-select {
     position: relative;
 }
+
 .mrt-assignee-name,
-.mrt-reviewer-name  {
+.mrt-reviewer-name {
     height: 18px;
     box-sizing: content-box;
     line-height: 18px;
@@ -66,6 +88,7 @@ textarea {
     -ms-border-radius: var(--gm-border-radius);
     -o-border-radius: var(--gm-border-radius);
 }
+
 .del-icon {
     position: absolute;
     right: var(--input-padding-vertical);
@@ -77,12 +100,15 @@ textarea {
     color: var(--vscode-input-foreground);
     transition: transform 0.3s;
 }
+
 .del-icon:hover {
     transform: translateY(-50%) scale(1.2);
 }
-.del-icon.hidden{
+
+.del-icon.hidden {
     display: none;
 }
+
 .mrt-user-select .user-wrap {
     display: flex;
     flex-direction: column;
@@ -98,14 +124,17 @@ textarea {
     border-radius: var(--gm-border-radius);
     opacity: 0;
 }
+
 .mrt-user-select .list {
     flex: 1;
     position: relative;
 }
+
 .mrt-keyword-inp {
     margin: 6px;
     width: auto !important;
 }
+
 .mrt-user-list {
     position: absolute;
     top: 0;
@@ -117,11 +146,13 @@ textarea {
     list-style: none;
     overflow: auto;
 }
+
 .mrt-user-select.show .user-wrap {
     opacity: 1;
     height: 200px;
     z-index: 2;
 }
+
 .mrt-user-item {
     display: flex;
     line-height: 1.4;
@@ -131,41 +162,51 @@ textarea {
     cursor: pointer;
     border-radius: var(--gm-border-radius);
 }
+
 .mrt-user-item:hover, .mrt-user-item.hover {
     background: var(--vscode-list-activeSelectionBackground);
 }
-.mrt-user-item.active{
+
+.mrt-user-item.active {
     color: var(--vscode-button-foreground);
     background-color: var(--vscode-button-background);
 }
+
 .mrt-user-list .name {
     margin-right: 6px;
 }
+
 .mrt-user-list .username {
     opacity: 0.5;
 }
+
 .mrt-user-select .empty {
     display: none;
     line-height: 2;
     color: var(--vscode-descriptionForeground);
     text-align: center;
 }
+
 .mrt-user-select .empty.show {
     display: block;
 }
+
 .mrt-checkbox {
     display: flex;
     margin: 10px 0;
 }
+
 .mrt-checkbox input {
     margin: 2px 4px 0 0;
     cursor: pointer;
 }
+
 .mrt-checkbox label {
     cursor: pointer;
     user-select: none;
     color: var(--vscode-descriptionForeground);
 }
+
 .mrt-btn {
     margin-bottom: 30px;
 }
@@ -176,6 +217,7 @@ textarea {
     margin-bottom: 20px;
     border-bottom: 1px solid var(--mrt-border-color);
 }
+
 .mrt-repo-name {
     padding: 7px 4px;
     margin: 0 6px;
@@ -184,7 +226,30 @@ textarea {
     color: var(--vscode-tab-inactiveForeground);
     cursor: pointer;
 }
+
 .mrt-repo-name.active {
     border-bottom: 2.5px solid var(--vscode-button-background);
     color: var(--vscode-tab-activeForeground);
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.mrt-title {
+    width: 100%;
+    padding-right: 2rem;
+    /* Add padding to prevent text overlap with the icon */
+    box-sizing: border-box;
+}
+
+.clear-icon {
+    position: absolute;
+    right: 0.5rem;
+    cursor: pointer;
+    width: 1rem;
+    height: 1rem;
+    color: var(--vscode-input-foreground);
 }
