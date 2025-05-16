@@ -3,7 +3,7 @@
   "displayName": "GitLabMerge",
   "description": "Create MRs in Gitlab from VS Code",
   "publisher": "JoyalJames",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "icon": "src/assets/icon.png",
   "repository": "https://github.com/joyaljamez/GitLabMerge-.git",
   "engines": {

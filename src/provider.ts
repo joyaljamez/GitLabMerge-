@@ -251,7 +251,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
     this.repoPath = repoPath || this.repoPath || "";
 
     const { progress, res: promiseRes } = await withProgress(
-      "Initializing git repository"
+      "Initializing Git Repository."
     );
     const fn = async () => {
       try {
