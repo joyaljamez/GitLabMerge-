@@ -5,7 +5,7 @@ import { SharedStore } from "./assets/store";
 import { validateForm, info, log, withProgress } from "./utils";
 
 export default class ListMRProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = "gitlab.mrt.merge";
+  public static readonly viewType = "gitlabmerge.merge";
   private _view?: vscode.WebviewView;
   private config: ExtensionConfig = {};
   private api?: Api;

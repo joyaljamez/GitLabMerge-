@@ -44,9 +44,9 @@ export function activate(context: vscode.ExtensionContext) {
   };
 
   context.subscriptions.push(
-    register("gitlabmrt.refresh", () => provider.init()),
-    register("gitlabmrt.repository", openGitPage),
-    register("gitlabmrt.merge.requests", () => openGitPage(true)),
-    register("gitlabmrt.refreshMrs", () => listMRProvider.refresh()),
+    register("gitlabmerge.refresh", () => provider.init()),
+    register("gitlabmerge.repository", () => openGitPage(false)),
+    register("gitlabmerge.merge.requests", () => openGitPage(true)),
+    register("gitlabmerge.refreshMrs", () => listMRProvider.refresh())
   );
 }

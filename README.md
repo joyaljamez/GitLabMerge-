@@ -1,35 +1,65 @@
-# GitLabMerge README
+# GitLabMerge+ README
 
-Gitlab Merge Request Helper fo VS Code.
+**GitLab Merge Request Helper for VS Code**
 
-Author: [Joyal James]
+**Author:** Joyal James
 
-![](src/assets/view.png)
+![Extension Preview](src/assets/view.png)
 
-## Features
+---
 
-+ Create an Merge Requests from VS Code
+## 🚀 Features
 
-## Extension Settings
+### 🔧 Create Merge Request
 
-+ `gitlabmergeplus.token`: Access token to use to connect to the Gitlab.com API. Create one by going to Profile Settings -> Access Tokens.
+- Create a Merge Request directly from VS Code.
+- **Auto-fill** on refresh:
 
-+ `gitlabmergeplus.instanceUrl`: If you are using GitLab on a custom domain, you must add this to your user settings file.
+  - Source branch and title.
+  - Target branch (`master`, `dev`, `develop`).
 
-VS Code settings:
+- Select project members as **reviewers** or **assignees**.
+- Add **multiple labels** with ease.
 
-![](src/assets/setting.png)
+### 📂 My Merge Requests
 
-settings.json:
+- View a list of all merge requests created by you.
+- Expand a merge request to:
+
+  - View MR details.
+  - Copy or open MR URL.
+
+- 🔴 **Red Arrow** indicator for merge conflicts.
+
+---
+
+## ⚙️ Extension Settings
+
+| Setting                       | Description                                                                                                 |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `gitlabmergeplus.token`       | Access token to connect to the GitLab API. Make sure to use a token created from your GitLab account's main settings (not a project-specific token) to ensure that all merge requests—created from both the web and the extension—are tracked properly. Generate one from **GitLab → Profile Settings → Access Tokens.**. |
+| `gitlabmergeplus.instanceUrl` | (Optional) Custom GitLab domain URL (e.g., `https://git.yourdomain.com`).                                   |
+
+### VS Code Settings UI
+
+![VS Code Settings](src/assets/setting.png) |
+
+### Example: `settings.json`
 
 ```json
 {
-    "gitlabmergeplus.token": "xxx",
-    "gitlabmergeplus.instanceUrl": "https://git.xxx.com"
+  "gitlabmergeplus.token": "YOUR_ACCESS_TOKEN",
+  "gitlabmergeplus.instanceUrl": "https://gitlab.com"
 }
 ```
 
-### Links
+---
 
-+ Visual Studio Marketplace: []()
-* Github Repo: [GitLabMerge](https://github.com/joyaljamez/GitLabMerge-)
+## 🔗 Links
+
+- 🧩 [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=JoyalJames.GitLabMerge)
+- 🐙 [GitHub Repository - GitLabMerge+](https://github.com/joyaljamez/GitLabMerge-)
+
+---
+
+

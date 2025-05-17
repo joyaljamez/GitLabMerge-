@@ -13,20 +13,20 @@
     "Other"
   ],
   "activationEvents": [
-    "onView:gitlab.mrt"
+    "onView:gitlabmerge"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "views": {
-      "gitlab-mrt": [
+      "gitlabmerge": [
         {
           "type": "webview",
-          "id": "gitlab.mrt",
+          "id": "gitlabmerge",
           "name": "Create Merge Request"
         },
         {
           "type": "webview",
-          "id": "gitlab.mrt.merge",
+          "id": "gitlabmerge.merge",
           "name": "My Merge Requests"
         }
       ]
@@ -34,7 +34,7 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "gitlab-mrt",
+          "id": "gitlabmerge",
           "title": "GitLabMerge",
           "icon": "src/assets/gitlab.svg"
         }
@@ -58,41 +58,41 @@
     "menus": {
       "view/title": [
         {
-          "command": "gitlabmrt.repository",
-          "when": "view == gitlab.mrt"
+          "command": "gitlabmerge.repository",
+          "when": "view == gitlabmerge"
         },
         {
-          "command": "gitlabmrt.merge.requests",
-          "when": "view == gitlab.mrt"
+          "command": "gitlabmerge.merge.requests",
+          "when": "view == gitlabmerge"
         },
         {
-          "command": "gitlabmrt.refresh",
-          "when": "view == gitlab.mrt",
+          "command": "gitlabmerge.refresh",
+          "when": "view == gitlabmerge",
           "group": "navigation"
         },
         {
-          "command": "gitlabmrt.refreshMrs",
-          "when": "view == gitlab.mrt.merge",
+          "command": "gitlabmerge.refreshMrs",
+          "when": "view == gitlabmerge.merge",
           "group": "navigation"
         }
       ]
     },
     "commands": [
       {
-        "command": "gitlabmrt.repository",
+        "command": "gitlabmerge.repository",
         "title": "Repository"
       },
       {
-        "command": "gitlabmrt.merge.requests",
+        "command": "gitlabmerge.merge.requests",
         "title": "Merge Requests"
       },
       {
-        "command": "gitlabmrt.refresh",
+        "command": "gitlabmerge.refresh",
         "title": "Refresh",
         "icon": "$(refresh)"
       },
       {
-        "command": "gitlabmrt.refreshMrs",
+        "command": "gitlabmerge.refreshMrs",
         "title": "Refresh Merge Requests",
         "icon": "$(refresh)"
       }
