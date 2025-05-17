@@ -1,0 +1,133 @@
+{
+  "name": "GitLabMerge",
+  "displayName": "GitLabMerge",
+  "description": "Create MRs in Gitlab from VS Code",
+  "publisher": "JoyalJames",
+  "version": "3.0.0",
+  "icon": "src/assets/icon.png",
+  "repository": "https://github.com/joyaljamez/GitLabMerge-.git",
+  "engines": {
+    "vscode": "^1.61.1"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:gitlabmerge"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "views": {
+      "gitlabmerge": [
+        {
+          "type": "webview",
+          "id": "gitlabmerge",
+          "name": "Create Merge Request"
+        },
+        {
+          "type": "webview",
+          "id": "gitlabmerge.merge",
+          "name": "My Merge Requests"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "gitlabmerge",
+          "title": "GitLabMerge",
+          "icon": "src/assets/gitlab.svg"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "GitLabMerge",
+      "properties": {
+        "gitlabmergeplus.instanceUrl": {
+          "type": "string",
+          "default": "https://gitlab.com",
+          "description": "Your GitLab instance URL"
+        },
+        "gitlabmergeplus.token": {
+          "type": "string",
+          "default": "",
+          "description": "Access token to use to connect to the Gitlab API"
+        }
+      }
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "gitlabmerge.repository",
+          "when": "view == gitlabmerge"
+        },
+        {
+          "command": "gitlabmerge.merge.requests",
+          "when": "view == gitlabmerge"
+        },
+        {
+          "command": "gitlabmerge.refresh",
+          "when": "view == gitlabmerge",
+          "group": "navigation"
+        },
+        {
+          "command": "gitlabmerge.refreshMrs",
+          "when": "view == gitlabmerge.merge",
+          "group": "navigation"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "gitlabmerge.repository",
+        "title": "Repository"
+      },
+      {
+        "command": "gitlabmerge.merge.requests",
+        "title": "Merge Requests"
+      },
+      {
+        "command": "gitlabmerge.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "gitlabmerge.refreshMrs",
+        "title": "Refresh Merge Requests",
+        "icon": "$(refresh)"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "NODE_OPTIONS=--openssl-legacy-provider webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "test-compile": "tsc -p ./",
+    "test-watch": "tsc -watch -p ./",
+    "pretest": "npm run test-compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.3",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "14.x",
+    "@types/vscode": "^1.61.0",
+    "@typescript-eslint/eslint-plugin": "^4.26.0",
+    "@typescript-eslint/parser": "^4.26.0",
+    "eslint": "^7.27.0",
+    "glob": "^7.1.7",
+    "iconv-lite": "^0.6.3",
+    "mocha": "^8.4.0",
+    "ts-loader": "^9.2.2",
+    "typescript": "^4.3.2",
+    "vscode-test": "^1.5.2",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "axios": "^1.8.4"
+  }
+}
