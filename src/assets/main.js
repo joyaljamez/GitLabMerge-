@@ -92,7 +92,6 @@
   const userWrapReviewerDom = query(".mrt-user-select.reviewer");
   let timer;
 
-  // 点击输入框显示用户列表
   function userWrapDomClick(type) {
     return function () {
       type === "assignee"
@@ -104,7 +103,6 @@
           ? searchInpDomAssignee.focus()
           : searchInpDomReviewer.focus();
         query(`.${type} .mrt-user-item.hover`)?.classList?.remove("hover");
-        // 监听上下按键
         document.onkeydown = function (e) {
           const active = query(`.${type} .mrt-user-item.active`);
           const firstItem = query(`.${type} .mrt-user-item`);
@@ -141,14 +139,12 @@
   assigneeNameDom.onclick = userWrapDomClick("assignee");
   reviewerNameDom.onclick = userWrapDomClick("reviewer");
 
-  // 失焦隐藏用户列表
   function userWrapDomBlur(type) {
     return function () {
       timer = setTimeout(() => {
         type === "assignee"
           ? userWrapAssigneeDom.classList.remove("show")
           : userWrapReviewerDom.classList.remove("show");
-        // 取消监听上下按键
         document.onkeydown = null;
       }, 100);
     };
@@ -169,11 +165,9 @@
 
   let selectedAssignee = oldState?.selectedAssignee;
   setCurrentAssignee(selectedAssignee || {});
-  // 设置缓存用户数据
   let selectedReviewer = oldState?.selectedReviewer;
   setCurrentReviewer(selectedReviewer || {});
 
-  // 点击用户列表选中用户
   function userListDomCLick(e) {
     const li = e.target.tagName === "LI" ? e.target : e.target.parentNode;
     if (!li || li.tagName !== "LI") {
@@ -197,7 +191,6 @@
   userListAssigneeDom.onclick = userListDomCLick;
   userListReviewerDom.onclick = userListDomCLick;
 
-  // 删除选中用户
   function delUsers(type) {
     return () => {
       type === "assignee" ? setCurrentAssignee({}) : setCurrentReviewer({});
@@ -255,7 +248,6 @@
     };
   }
 
-  // 设置分支下拉框选项及默认值
   function updateBranches() {
     const select = queryAll(".branches-select");
     select.forEach((item) => {
@@ -324,7 +316,6 @@
     } else {
       emptyDom.classList.remove("show");
     }
-    // 默认选中第一个
     // query(`.${type} .mrt-user-item[data-id='${}']`)?.classList?.add('active');
   }
   function updateLabels(labels = []) {
@@ -381,7 +372,6 @@
     wrapDom.classList[method]("show-tips");
   }
 
-  // 打开 setting
   query(".setting-btn").onclick = () => {
     postMsg("setting");
   };

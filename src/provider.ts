@@ -329,7 +329,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
     });
   }
 
-  // 搜索Reviewer
+  //Reviewer
   getReviewers(name?: string) {
     this.api?.getUsers(name).then((res) => {
       this.postMsg("reviewers", res.data);
