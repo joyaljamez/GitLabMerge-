@@ -7,39 +7,175 @@
 
   const oldState = vscode.getState();
 
-  // todo
-  setTimeout(() => {
-    postMsg("init", oldState.repoPath);
-  }, 500);
+  function boot() {
+    setTimeout(() => {
+      postMsg("init", oldState?.repoPath);
+    }, 500);
 
-  // repo tab
-  query("#repo-list").onclick = function (e) {
-    const target = e.target;
-    const repoPath = target.dataset.path;
-    if (repoPath) {
-      target.parentElement.childNodes.forEach((item) => {
-        item.classList?.remove("active");
-      });
-      target.classList.add("active");
-      vscode.setState({ ...oldState, repoPath });
-      postMsg("repoChange", repoPath);
+    bindRepoTabs();
+    bindSubmit();
+    bindUserPickers();
+    bindBranchPickers();
+    bindMessages();
+  }
+
+  const toolkitReady = customElements.get("vscode-button")
+    ? Promise.resolve()
+    : Promise.race([
+        customElements.whenDefined("vscode-button"),
+        new Promise((resolve) => setTimeout(resolve, 4000)),
+      ]);
+
+  toolkitReady.then(boot).catch(boot);
+
+  function bindRepoTabs() {
+    query("#repo-list").onclick = function (e) {
+      const target = e.target;
+      const repoPath = target.dataset.path;
+      if (repoPath) {
+        target.parentElement.childNodes.forEach((item) => {
+          item.classList?.remove("active");
+        });
+        target.classList.add("active");
+        vscode.setState({ ...vscode.getState(), repoPath });
+        postMsg("repoChange", repoPath);
+      }
+    };
+  }
+
+  function bindSubmit() {
+    const submit = query("#submit");
+    submit?.addEventListener("click", () => {
+      if (submit.disabled || submit.classList.contains("mrt-btn--busy")) {
+        return;
+      }
+      const data = collectFormData();
+      if (data.reviewer_id) {
+        data.reviewer_ids = [Number(data.reviewer_id)];
+      }
+      data.assignee_username = selectedAssignee?.username;
+      data.reviewer_username = selectedReviewer?.username;
+      setSubmitBusy(true);
+      postMsg("submitMR", data);
+      storageData(data);
+    });
+  }
+
+  function setSubmitBusy(busy) {
+    const submit = query("#submit");
+    if (!submit) {
+      return;
     }
-  };
+    const defaultText =
+      submit.dataset.label || submit.textContent?.trim() || "Submit MR";
+    submit.dataset.label = defaultText;
+    submit.disabled = busy;
+    submit.classList.toggle("mrt-btn--busy", busy);
+    if (busy) {
+      submit.innerHTML =
+        '<span class="gm-submit-inner"><vscode-progress-ring class="gm-submit-spinner"></vscode-progress-ring><span>Submitting…</span></span>';
+    } else {
+      submit.textContent = defaultText;
+    }
+  }
+
+  function getToolkitValue(el) {
+    if (!el) {
+      return "";
+    }
+    const inner = el.shadowRoot?.querySelector("input, textarea");
+    return (el.value || inner?.value || "").trim();
+  }
+
+  function collectFormData() {
+    const labelsSelect = query(".mrt-labels-select");
+    return {
+      title: getToolkitValue(query("#title-field")),
+      description: getToolkitValue(query("#description-field")) || "",
+      source_branch: query(".mrt-source-branch-value")?.value || "",
+      target_branch: query(".mrt-target-branch-value")?.value || "",
+      assignee_id: query(".mrt-assignee-id")?.value || "",
+      reviewer_id: query(".mrt-reviewer-id")?.value || "",
+      labels: labelsSelect
+        ? Array.from(labelsSelect.selectedOptions).map((opt) => opt.value)
+        : [],
+      remove_source_branch: Boolean(
+        query("#delete-source-branch")?.checked
+      ),
+      squash: Boolean(query("#squash-commits")?.checked),
+    };
+  }
+
+  function setToolkitValue(el, value) {
+    if (!el) {
+      return;
+    }
+    el.value = value;
+    const inner = el.shadowRoot?.querySelector("input, textarea");
+    if (inner) {
+      inner.value = value;
+    }
+  }
+
+  function clearForm() {
+    setToolkitValue(query("#title-field"), "");
+    setToolkitValue(query("#description-field"), "");
+    setCurrentAssignee({});
+    setCurrentReviewer({});
+    queryAll(".mrt-user-item.active").forEach((el) =>
+      el.classList.remove("active")
+    );
+    const labelsSelect = query(".mrt-labels-select");
+    if (labelsSelect) {
+      queryAll(".mrt-labels-select option").forEach((opt) => {
+        opt.selected = false;
+      });
+    }
+    const deleteBranch = query("#delete-source-branch");
+    const squash = query("#squash-commits");
+    if (deleteBranch) {
+      deleteBranch.checked = true;
+    }
+    if (squash) {
+      squash.checked = false;
+    }
+    closeAllPickers();
+    selectedSourceBranch = "";
+    selectedTargetBranch = "";
+    query(".mrt-source-branch-value").value = "";
+    query(".mrt-target-branch-value").value = "";
+    query(".mrt-source-branch-name").textContent = "Select source branch";
+    query(".mrt-source-branch-name").classList.add("placeholder");
+    query(".mrt-target-branch-name").textContent = "Select target branch";
+    query(".mrt-target-branch-name").classList.add("placeholder");
+    renderBranchList("source", "");
+    renderBranchList("target", "");
+    if (searchInpSourceBranch) {
+      searchInpSourceBranch.value = "";
+    }
+    if (searchInpTargetBranch) {
+      searchInpTargetBranch.value = "";
+    }
+    vscode.setState({
+      repoPath: vscode.getState()?.repoPath,
+    });
+  }
+
   function updateRepoTab(paths) {
-    state = vscode.getState();
+    const state = vscode.getState() || {};
     let repoPath = state.repoPath;
     const dom = query("#repo-list");
     if (dom && paths.length > 1) {
       if (!repoPath || !paths.includes(repoPath)) {
         repoPath = paths[0];
       }
-      vscode.setState({ ...oldState, repoPath });
+      vscode.setState({ ...state, repoPath });
       dom.innerHTML = `
                 <div class="mrt-repo">
                     ${paths
                       .map((item) => {
                         const name = item.split("/").reverse()[0];
-                        return `<div 
+                        return `<div
                             class="mrt-repo-name ${
                               repoPath === item ? "active" : ""
                             }"
@@ -52,61 +188,114 @@
     }
   }
 
-  // submit MR
-  query("#submit").onclick = function () {
-    const formItems = queryAll(".form");
-    const data = {};
-    formItems.forEach((item) => {
-      const name = item.getAttribute("name");
-      if (item.tagName === "SELECT" && item.multiple) {
-        const selectedValues = Array.from(item.selectedOptions).map(
-          (opt) => opt.value
-        );
-        data[name] = selectedValues;
-      } else {
-        data[name] = item.value;
-      }
-      if (name === "reviewer_id" && item.value) {
-        data.reviewer_ids = [Number(item.value)];
-      }
-    });
-
-    const checkbox = queryAll(".checkbox");
-    checkbox.forEach((item) => {
-      const name = item.getAttribute("name");
-      data[name] = item.checked;
-    });
-
-    postMsg("submitMR", data);
-    storageData(data);
-  };
-
   const assigneeNameDom = query(".mrt-assignee-name");
   const reviewerNameDom = query(".mrt-reviewer-name");
-  // search input
   const searchInpDomAssignee = query("#keywordInp-assignee");
   const searchInpDomReviewer = query("#keywordInp-reviewer");
-  // user assignee list
-  const userWrapAssigneeDom = query(".mrt-user-select.assignee");
-  // user reviewer list
-  const userWrapReviewerDom = query(".mrt-user-select.reviewer");
+  const userWrapAssigneeDom = query(".mrt-picker-select.assignee");
+  const userWrapReviewerDom = query(".mrt-picker-select.reviewer");
+  const branchWrapSourceDom = query(".mrt-picker-select.source");
+  const branchWrapTargetDom = query(".mrt-picker-select.target");
+  const userListAssigneeDom = query(".assignee .mrt-user-list");
+  const userListReviewerDom = query(".reviewer .mrt-user-list");
+  const branchListSourceDom = query(".mrt-branch-list.source");
+  const branchListTargetDom = query(".mrt-branch-list.target");
+  const searchInpSourceBranch = query("#keywordInp-source-branch");
+  const searchInpTargetBranch = query("#keywordInp-target-branch");
   let timer;
+  let selectedSourceBranch = "";
+  let selectedTargetBranch = "";
 
-  function userWrapDomClick(type) {
+  let selectedAssignee = oldState?.selectedAssignee;
+  let selectedReviewer = oldState?.selectedReviewer;
+  setCurrentAssignee(selectedAssignee || {});
+  setCurrentReviewer(selectedReviewer || {});
+
+  function closeAllPickers(exceptType) {
+    queryAll(".mrt-picker-select").forEach((el) => {
+      if (exceptType && el.classList.contains(exceptType)) {
+        return;
+      }
+      el.classList.remove("show");
+    });
+    if (!exceptType) {
+      document.onkeydown = null;
+    }
+  }
+
+  function bindUserPickers() {
+    assigneeNameDom.onclick = pickerWrapDomClick("assignee");
+    reviewerNameDom.onclick = pickerWrapDomClick("reviewer");
+    searchInpDomAssignee.onblur = pickerWrapDomBlur("assignee");
+    searchInpDomReviewer.onblur = pickerWrapDomBlur("reviewer");
+    searchInpDomAssignee.oninput = debounce(function (e) {
+      postMsg("searchUser", e.target.value);
+    }, 500);
+    searchInpDomReviewer.oninput = debounce(function (e) {
+      postMsg("searchReviewer", e.target.value);
+    }, 500);
+    userListAssigneeDom.onclick = userListDomCLick;
+    userListReviewerDom.onclick = userListDomCLick;
+    query(".del-assignee").onclick = delUsers("assignee");
+    query(".del-reviewer").onclick = delUsers("reviewer");
+  }
+
+  function bindBranchPickers() {
+    query(".mrt-source-branch-name").onclick = pickerWrapDomClick("source");
+    query(".mrt-target-branch-name").onclick = pickerWrapDomClick("target");
+    searchInpSourceBranch.onblur = pickerWrapDomBlur("source");
+    searchInpTargetBranch.onblur = pickerWrapDomBlur("target");
+    searchInpSourceBranch.oninput = debounce((e) => {
+      renderBranchList("source", e.target.value);
+    }, 200);
+    searchInpTargetBranch.oninput = debounce((e) => {
+      renderBranchList("target", e.target.value);
+    }, 200);
+    branchListSourceDom.onclick = branchListClick;
+    branchListTargetDom.onclick = branchListClick;
+  }
+
+  function pickerDom(type) {
+    return query(`.mrt-picker-select.${type}`);
+  }
+
+  function pickerSearchInput(type) {
+    if (type === "assignee") {
+      return searchInpDomAssignee;
+    }
+    if (type === "reviewer") {
+      return searchInpDomReviewer;
+    }
+    if (type === "source") {
+      return searchInpSourceBranch;
+    }
+    return searchInpTargetBranch;
+  }
+
+  function pickerItemSelector(type) {
+    return type === "source" || type === "target"
+      ? `.${type} .mrt-branch-item`
+      : `.${type} .mrt-user-item`;
+  }
+
+  function pickerWrapDomClick(type) {
     return function () {
-      type === "assignee"
-        ? userWrapAssigneeDom.classList.add("show")
-        : userWrapReviewerDom.classList.add("show");
+      closeAllPickers(type);
+      pickerDom(type)?.classList.add("show");
       clearTimeout(timer);
       setTimeout(() => {
-        type === "assignee"
-          ? searchInpDomAssignee.focus()
-          : searchInpDomReviewer.focus();
-        query(`.${type} .mrt-user-item.hover`)?.classList?.remove("hover");
+        const searchInp = pickerSearchInput(type);
+        searchInp.focus();
+        if (type === "source" || type === "target") {
+          searchInp.value = "";
+          renderBranchList(type, "");
+        }
+        query(`${pickerItemSelector(type)}.hover`)?.classList?.remove("hover");
         document.onkeydown = function (e) {
-          const active = query(`.${type} .mrt-user-item.active`);
-          const firstItem = query(`.${type} .mrt-user-item`);
-          const hoverItem = query(`.${type} .mrt-user-item.hover`) || active;
+          const itemSel = pickerItemSelector(type);
+          const active = query(`${itemSel}.active`);
+          const firstItem = query(itemSel);
+          const hoverItem = query(`${itemSel}.hover`) || active;
           if (e.key === "ArrowDown") {
             const next = !hoverItem ? firstItem : hoverItem.nextElementSibling;
             if (next) {
@@ -128,45 +317,91 @@
               return;
             }
             hoverItem.click();
-            type === "assignee"
-              ? searchInpDomAssignee.blur()
-              : searchInpDomReviewer.blur();
+            searchInp.blur();
           }
         };
       }, 300);
     };
   }
-  assigneeNameDom.onclick = userWrapDomClick("assignee");
-  reviewerNameDom.onclick = userWrapDomClick("reviewer");
 
-  function userWrapDomBlur(type) {
+  function pickerWrapDomBlur(type) {
     return function () {
       timer = setTimeout(() => {
-        type === "assignee"
-          ? userWrapAssigneeDom.classList.remove("show")
-          : userWrapReviewerDom.classList.remove("show");
+        pickerDom(type)?.classList.remove("show");
         document.onkeydown = null;
       }, 100);
     };
   }
-  searchInpDomAssignee.onblur = userWrapDomBlur("assignee");
-  searchInpDomReviewer.onblur = userWrapDomBlur("reviewer");
 
-  searchInpDomAssignee.oninput = debounce(function (e) {
-    postMsg("searchUser", e.target.value);
-  }, 500);
-  searchInpDomReviewer.oninput = debounce(function (e) {
-    postMsg("searchReviewer", e.target.value);
-  }, 500);
+  function branchListClick(e) {
+    const li = e.target.tagName === "LI" ? e.target : e.target.parentNode;
+    if (!li || li.tagName !== "LI") {
+      return;
+    }
+    const type = li.classList.contains("source-item") ? "source" : "target";
+    const name = li.dataset.name;
+    if (type === "source") {
+      setCurrentSourceBranch(name);
+    } else {
+      setCurrentTargetBranch(name);
+    }
+    pickerDom(type)?.classList.remove("show");
+    document.onkeydown = null;
+  }
 
-  // select assignee
-  const userListAssigneeDom = query(".assignee .mrt-user-list");
-  const userListReviewerDom = query(".reviewer .mrt-user-list");
+  function renderBranchList(type, filter) {
+    const q = (filter || "").trim().toLowerCase();
+    const list = q
+      ? branches.filter((b) => b.name.toLowerCase().includes(q))
+      : branches;
+    const ul = type === "source" ? branchListSourceDom : branchListTargetDom;
+    const current =
+      type === "source" ? selectedSourceBranch : selectedTargetBranch;
+    if (!ul) {
+      return;
+    }
+    ul.innerHTML = list
+      .map(
+        ({ name }) =>
+          `<li class="mrt-branch-item ${type}-item ${
+            current === name ? "active" : ""
+          }" data-name="${name}"><span class="name">${name}</span></li>`
+      )
+      .join("");
+    const emptyDom = query(`.mrt-picker-select.${type} .empty`);
+    if (list.length === 0) {
+      emptyDom?.classList.add("show");
+    } else {
+      emptyDom?.classList.remove("show");
+    }
+  }
 
-  let selectedAssignee = oldState?.selectedAssignee;
-  setCurrentAssignee(selectedAssignee || {});
-  let selectedReviewer = oldState?.selectedReviewer;
-  setCurrentReviewer(selectedReviewer || {});
+  function setCurrentSourceBranch(name) {
+    selectedSourceBranch = name || "";
+    query(".mrt-source-branch-value").value = selectedSourceBranch;
+    const label = query(".mrt-source-branch-name");
+    label.textContent = selectedSourceBranch || "Select source branch";
+    if (!selectedSourceBranch) {
+      label.classList.add("placeholder");
+    } else {
+      label.classList.remove("placeholder");
+    }
+    renderBranchList("source", searchInpSourceBranch?.value || "");
+    setTitle();
+  }
+
+  function setCurrentTargetBranch(name) {
+    selectedTargetBranch = name || "";
+    query(".mrt-target-branch-value").value = selectedTargetBranch;
+    const label = query(".mrt-target-branch-name");
+    label.textContent = selectedTargetBranch || "Select target branch";
+    if (!selectedTargetBranch) {
+      label.classList.add("placeholder");
+    } else {
+      label.classList.remove("placeholder");
+    }
+    renderBranchList("target", searchInpTargetBranch?.value || "");
+  }
 
   function userListDomCLick(e) {
     const li = e.target.tagName === "LI" ? e.target : e.target.parentNode;
@@ -182,14 +417,21 @@
       ? "assignee"
       : "reviewer";
     const data = li.dataset;
+    const user = {
+      id: data.id,
+      name: data.name,
+      username: data.username,
+    };
     if (type === "assignee") {
-      setCurrentAssignee(selectedAssignee?.id === data?.id ? {} : data);
+      setCurrentAssignee(
+        selectedAssignee?.id === user.id ? {} : user
+      );
     } else {
-      setCurrentReviewer(selectedReviewer?.id === data?.id ? {} : data);
+      setCurrentReviewer(
+        selectedReviewer?.id === user.id ? {} : user
+      );
     }
   }
-  userListAssigneeDom.onclick = userListDomCLick;
-  userListReviewerDom.onclick = userListDomCLick;
 
   function delUsers(type) {
     return () => {
@@ -197,98 +439,128 @@
       query(`.${type} .mrt-user-item.active`)?.classList?.remove("active");
     };
   }
-  query(".del-assignee").onclick = delUsers("assignee");
-  query(".del-reviewer").onclick = delUsers("reviewer");
 
   let currentBranchName = "";
-  // remote branches
   let branches = [];
 
-  window.addEventListener("message", (event) => {
-    const msg = event.data;
-    switch (msg.type) {
-      case "viewTips":
-        setTipsVisible(msg.data);
-        break;
-      case "branches":
-        branches = msg.data;
-        updateBranches(branches);
-        break;
-      case "currentBranch":
-        currentBranchName = msg.data;
-        break;
-      case "users":
-        updateUsers(msg.data, "assignee");
-        break;
-      case "reviewers":
-        updateUsers(msg.data, "reviewer");
-        break;
-      case "labels":
-        updateLabels(msg.data); // 🔥 Add this
-        break;
-    //   case "myMRs":
-    //     setMyMRs();
-    //     break;
-      case "updateRepoTab":
-        updateRepoTab(msg.data);
-        break;
-    }
-  });
+  function bindMessages() {
+    window.addEventListener("message", (event) => {
+      const msg = event.data;
+      switch (msg.type) {
+        case "viewTips":
+          setTipsVisible(msg.data);
+          break;
+        case "viewReady":
+          showCreateForm();
+          break;
+        case "branches":
+          branches = msg.data;
+          updateBranches(branches);
+          break;
+        case "currentBranch":
+          currentBranchName = msg.data;
+          setSourceBranch();
+          break;
+        case "users":
+          updateUsers(msg.data, "assignee");
+          break;
+        case "reviewers":
+          updateUsers(msg.data, "reviewer");
+          break;
+        case "labels":
+          updateLabels(msg.data);
+          break;
+        case "updateRepoTab":
+          updateRepoTab(msg.data);
+          break;
+        case "platform":
+          setPlatformOptions(msg.data);
+          break;
+        case "clearForm":
+          clearForm();
+          break;
+        case "submitState":
+          setSubmitBusy(Boolean(msg.data?.busy));
+          break;
+        default:
+          break;
+      }
+    });
+  }
 
-  // debounce
+  function showCreateForm() {
+    const wrap = query(".mrt-wrap");
+    const form = query(".mrt-form");
+    wrap?.classList.remove("hidden");
+    wrap?.classList.remove("show-tips");
+    form?.classList.remove("hidden");
+    if (form) {
+      form.style.display = "block";
+    }
+  }
+
+  function setPlatformOptions(platform) {
+    queryAll(".gitlab-only").forEach((el) => {
+      el.style.display = platform === "github" ? "none" : "";
+    });
+    const submit = query("#submit");
+    if (submit) {
+      const text =
+        platform === "github" ? "Submit Pull Request" : "Submit MR";
+      submit.dataset.label = text;
+      if (!submit.classList.contains("mrt-btn--busy")) {
+        submit.textContent = text;
+      }
+    }
+  }
+
   function debounce(fn, delay) {
-    let timer;
+    let t;
     return function () {
-      let _this = this;
-      const opt = arguments;
-      clearTimeout(timer);
-      timer = setTimeout(function () {
-        fn.apply(_this, opt);
-      }, delay);
+      const self = this;
+      const args = arguments;
+      clearTimeout(t);
+      t = setTimeout(() => fn.apply(self, args), delay);
     };
   }
 
   function updateBranches() {
-    const select = queryAll(".branches-select");
-    select.forEach((item) => {
-      item.innerHTML = branches
-        .map(({ name }) => {
-          return `<option value="${name}">${name}</option>`;
-        })
-        .join("");
-    });
+    renderBranchList("source", "");
+    renderBranchList("target", "");
     setSourceBranch();
     setTargetBranch();
   }
+
   function setSourceBranch() {
-    const dom = query(".mrt-source-branch");
     let value = "";
     if (branches.find((item) => item.name === currentBranchName)) {
       value = currentBranchName;
     }
-    dom.value = value;
-
-    setTitle();
+    if (value) {
+      setCurrentSourceBranch(value);
+    }
   }
+
   function setTargetBranch() {
+    const state = vscode.getState() || {};
     let value = "";
     if (
-      oldState &&
-      oldState.targetBranch &&
-      branches.includes((v) => v.name === oldState.targetBranch)
+      state.targetBranch &&
+      branches.some((v) => v.name === state.targetBranch)
     ) {
-      value = oldState.targetBranch;
+      value = state.targetBranch;
     } else {
       const item = branches.find(({ name }) =>
-        ["master", "dev", "develop"].includes(name)
+        ["master", "main", "dev", "develop"].includes(name)
       );
       value = item?.name;
     }
     if (!value) {
       value = branches[0]?.name;
     }
-    const dom = query(".mrt-target-branch");
-    dom.value = value;
+    if (value) {
+      setCurrentTargetBranch(value);
+    }
   }
 
   function updateUsers(users = [], type = "assignee") {
@@ -298,7 +570,7 @@
       .map(({ name, username, id }) => {
         return `<li class="mrt-user-item ${type}-item ${
           currentId == id ? "active" : ""
-        }" data-id="${id}" data-name="${name}">
+        }" data-id="${id}" data-name="${name}" data-username="${username}">
                 <span class="name">${name}</span>
                 <span class="username">@${username}</span>
             </li>`;
@@ -316,37 +588,44 @@
     } else {
       emptyDom.classList.remove("show");
     }
-    // query(`.${type} .mrt-user-item[data-id='${}']`)?.classList?.add('active');
   }
-  function updateLabels(labels = []) {
-    const select = query(".mrt-labels-select"); // Adjust this selector based on your HTML
-    if (!select) return;
 
+  function updateLabels(labels = []) {
+    const select = query(".mrt-labels-select");
+    if (!select) {
+      return;
+    }
     select.innerHTML = labels
-      .map((label) => `<option value="${label.name}">${label.name}</option>`)
+      .map(
+        (label) =>
+          `<option value="${label.name}">${label.name}</option>`
+      )
       .join("");
   }
 
   function setTitle() {
-    const dom = query(".mrt-title");
-    if (dom.value) {
-      return;
+    const titleField = query("#title-field");
+    const inner = titleField?.shadowRoot?.querySelector("input");
+    const current = titleField?.value || inner?.value || "";
+    if (!current.trim() && currentBranchName) {
+      setToolkitValue(titleField, currentBranchName);
     }
-    dom.value = currentBranchName;
   }
 
   function storageData(formData) {
     vscode.setState({
+      ...vscode.getState(),
       targetBranch: formData.target_branch,
       selectedAssignee,
       selectedReviewer,
     });
   }
 
-  function setCurrentAssignee({ id, name }) {
+  function setCurrentAssignee({ id, name, username }) {
     query(".mrt-assignee-id").value = id || "";
-    assigneeNameDom.innerHTML = name || "";
-    selectedAssignee = { id, name };
+    assigneeNameDom.textContent = name || "Select assignee";
+    assigneeNameDom.classList.toggle("placeholder", !name);
+    selectedAssignee = { id, name, username };
     if (name) {
       query(`.del-assignee`).classList.remove("hidden");
     } else {
@@ -354,10 +633,11 @@
     }
   }
 
-  function setCurrentReviewer({ id, name }) {
+  function setCurrentReviewer({ id, name, username }) {
     query(".mrt-reviewer-id").value = id || "";
-    reviewerNameDom.innerHTML = name || "";
-    selectedReviewer = { id, name };
+    reviewerNameDom.textContent = name || "Select reviewer";
+    reviewerNameDom.classList.toggle("placeholder", !name);
+    selectedReviewer = { id, name, username };
     if (name) {
       query(`.del-reviewer`).classList.remove("hidden");
     } else {
@@ -366,13 +646,15 @@
   }
 
   function setTipsVisible(visible) {
-    const method = visible ? "add" : "remove";
     const wrapDom = query(".mrt-wrap");
-    wrapDom.classList.remove("hidden");
-    wrapDom.classList[method]("show-tips");
+    const formDom = query(".mrt-form");
+    wrapDom?.classList.remove("hidden");
+    if (visible) {
+      wrapDom?.classList.add("show-tips");
+      formDom?.classList.add("hidden");
+    } else {
+      wrapDom?.classList.remove("show-tips");
+      showCreateForm();
+    }
   }
-
-  query(".setting-btn").onclick = () => {
-    postMsg("setting");
-  };
 })();

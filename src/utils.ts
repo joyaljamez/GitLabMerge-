@@ -1,13 +1,55 @@
 import { MRParams, ProgressPromise } from './type';
 import * as vscode from 'vscode';
 
+const modalOptions: vscode.MessageOptions = { modal: true };
+
 export const log = (msg: string, ...items: string[]) => {
-    return vscode.window.showErrorMessage(msg, ...items);
+    return vscode.window.showErrorMessage(msg, modalOptions, ...items);
 };
 
 export const info = (msg: string, ...items: string[]) => {
-    return vscode.window.showInformationMessage(msg, ...items);
+    return vscode.window.showInformationMessage(msg, modalOptions, ...items);
 };
+
+export function infoModal(
+    message: string,
+    detail: string | undefined,
+    ...actions: string[]
+) {
+    const options: vscode.MessageOptions = { modal: true };
+    if (detail?.trim()) {
+        options.detail = detail.trim();
+    }
+    return vscode.window.showInformationMessage(message, options, ...actions);
+}
+
+/** Modal with custom buttons only (no implicit Cancel). */
+export function infoModalItems(
+    message: string,
+    detail: string | undefined,
+    items: vscode.MessageItem[]
+): Thenable<vscode.MessageItem | undefined> {
+    const options: vscode.MessageOptions = { modal: true };
+    if (detail?.trim()) {
+        options.detail = detail.trim();
+    }
+    return vscode.window.showInformationMessage(message, options, ...items);
+}
+
+/** Run work under a progress notification; closes before callers show alerts. */
+export async function runWithProgress<T>(
+    title: string,
+    task: () => Thenable<T> | Promise<T>
+): Promise<T> {
+    return vscode.window.withProgress(
+        {
+            location: vscode.ProgressLocation.Notification,
+            cancellable: false,
+            title,
+        },
+        async () => task()
+    );
+}
 
 // export function handleError(e: Error) {
 //     log(e.message);
@@ -33,8 +75,23 @@ export function validateForm(data: MRParams) {
 
 // response message
 export function handleResError(data: any) {
+  if (typeof data === 'string') {
+    return log(data);
+  }
     if (!data) {
-        return log('Failed to create MR!');
+        return log('Failed to create merge request!');
+    }
+    if (typeof data.message === 'string') {
+        return log(data.message);
+    }
+    if (Array.isArray(data.errors)) {
+        return log(
+            data.errors
+                .map((e: { message?: string } | string) =>
+                    typeof e === 'string' ? e : e.message || JSON.stringify(e)
+                )
+                .join(', ')
+        );
     }
     if (data.error) {
         return log(Array.isArray(data.error) ? data.error.join(', ') : data.error);

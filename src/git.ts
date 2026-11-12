@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { API, GitExtension, Repository, GitInfo } from './type';
 import { log } from './utils';
+import { parseGitRemote } from './remote';
 
 class GitExtensionWrap implements vscode.Disposable {
     apiListeners: vscode.Disposable[] = [];
@@ -71,15 +72,24 @@ class GitExtensionWrap implements vscode.Disposable {
             }
 
             const head = this.repo.state.HEAD;
-            const url = this.repo.state.remotes[0]?.fetchUrl?.replace(/\.git(\/)?$/, '');
-            const match = url?.match(/\/([^\/.]+)$/);
+            const remotes = this.repo.state.remotes;
+            const origin =
+                remotes.find((r) => r.name === "origin") || remotes[0];
+            const fetchUrl = origin?.fetchUrl || origin?.pushUrl;
+            const remote = parseGitRemote(fetchUrl);
+            const legacyMatch = fetchUrl
+                ?.replace(/\.git(\/)?$/, '')
+                ?.match(/\/([^\/.]+)$/);
 
             const branches = await this.repo?.getBranches({remote: true});
             res({
                 branches,
                 currentBranchName: head?.name || 'master',
-                projectName: match ? match[1] : '',
-                url,
+                projectName: legacyMatch ? legacyMatch[1] : '',
+                projectPath: remote?.projectPath || '',
+                url: remote?.webBaseUrl,
+                platform: remote?.platform,
+                host: remote?.host,
             });
         });
     }

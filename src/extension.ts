@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import MergeProvider from "./provider";
 import ListMRProvider from "./ListMRProvider";
+import { showGitMergeSetupInfo } from "./setupInfo";
 
 export function activate(context: vscode.ExtensionContext) {
   // https://code.visualstudio.com/api/references/activation-events
@@ -37,16 +38,20 @@ export function activate(context: vscode.ExtensionContext) {
     let url = provider.gitUrl;
     if (url) {
       url = url.replace(/.git$/, "");
+      const mrPath =
+        provider.platform === "github" ? "/pulls" : "/-/merge_requests";
       vscode.env.openExternal(
-        vscode.Uri.parse(url + (isMr ? "/-/merge_requests" : ""))
+        vscode.Uri.parse(url + (isMr ? mrPath : ""))
       );
     }
   };
 
   context.subscriptions.push(
-    register("gitlabmerge.refresh", () => provider.init()),
-    register("gitlabmerge.repository", () => openGitPage(false)),
-    register("gitlabmerge.merge.requests", () => openGitPage(true)),
-    register("gitlabmerge.refreshMrs", () => listMRProvider.refresh())
+    register("gitmerge.refresh", () => provider.init()),
+    register("gitmerge.repository", () => openGitPage(false)),
+    register("gitmerge.merge.requests", () => openGitPage(true)),
+    register("gitmerge.refreshMrs", () => listMRProvider.refresh()),
+    register("gitmerge.showInfo", () => showGitMergeSetupInfo()),
+    register("gitmerge.clearForm", () => provider.clearForm()),
   );
 }

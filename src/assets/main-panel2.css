@@ -22,13 +22,62 @@ html::-webkit-scrollbar {
     /* For Chrome, Safari, and Opera */
 }
 
-details {
-    border: 1px solid var(--ss-border-color);
+body {
+    padding: 12px 16px;
+    color: var(--vscode-foreground);
+    font-family: var(--vscode-font-family);
+    font-size: var(--vscode-font-size);
+}
+
+.gm-empty {
+    color: var(--vscode-descriptionForeground);
+}
+
+details,
+details.gm-mr-item {
+    border: 1px solid var(--vscode-widget-border, var(--ss-border-color));
+    margin-top: 12px;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    background-color: var(--vscode-editor-background);
+    color: var(--vscode-foreground);
+    border-radius: 4px;
+}
+
+.gm-mr-body {
+    padding: 8px 4px 4px;
+    line-height: 1.5;
+}
+
+.gm-mr-actions {
     margin-top: 10px;
-    margin-bottom: 10px;
-    padding: var(--ss-spacing-m) var(--ss-spacing-m);
-    background-color: var(--ss-bg-color);
-    color: var(--ss-font-color);
+}
+
+.gm-mr-actions a {
+    color: var(--vscode-textLink-foreground);
+}
+
+.gm-mr-actions a:hover {
+    color: var(--vscode-textLink-activeForeground);
+}
+
+.gm-mr-actions .close-mr {
+    color: var(--vscode-errorForeground);
+}
+
+.gm-mr-actions .merge-mr {
+    color: var(--vscode-gitDecoration-addedResourceForeground, var(--vscode-testing-iconPassed));
+    font-weight: 600;
+}
+
+.gm-action-disabled {
+    color: var(--vscode-disabledForeground);
+    cursor: help;
+}
+
+.gm-sep {
+    margin: 0 8px;
+    color: var(--vscode-descriptionForeground);
 }
 
 summary {

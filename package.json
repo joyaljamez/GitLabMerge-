@@ -1,9 +1,9 @@
 {
-  "name": "GitLabMerge",
-  "displayName": "GitLabMerge",
-  "description": "Create MRs in Gitlab from VS Code",
+  "name": "gitmerge",
+  "displayName": "GitMerge",
+  "description": "Create GitLab merge requests and GitHub pull requests from VS Code",
   "publisher": "JoyalJames",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "icon": "src/assets/icon.png",
   "repository": "https://github.com/joyaljamez/GitLabMerge-.git",
   "engines": {
@@ -13,20 +13,20 @@
     "Other"
   ],
   "activationEvents": [
-    "onView:gitlabmerge"
+    "onView:gitmerge"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "views": {
-      "gitlabmerge": [
+      "gitmerge": [
         {
           "type": "webview",
-          "id": "gitlabmerge",
+          "id": "gitmerge",
           "name": "Create Merge Request"
         },
         {
           "type": "webview",
-          "id": "gitlabmerge.merge",
+          "id": "gitmerge.merge",
           "name": "My Merge Requests"
         }
       ]
@@ -34,72 +34,108 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "gitlabmerge",
-          "title": "GitLabMerge",
-          "icon": "src/assets/gitlab.svg"
+          "id": "gitmerge",
+          "title": "GitMerge",
+          "icon": "src/assets/gitmerge.svg"
         }
       ]
     },
     "configuration": {
-      "title": "GitLabMerge",
+      "title": "GitMerge",
       "properties": {
-        "gitlabmergeplus.instanceUrl": {
+        "gitmerge.platform": {
           "type": "string",
-          "default": "https://gitlab.com",
-          "description": "Your GitLab instance URL"
+          "enum": [
+            "auto",
+            "gitlab",
+            "github"
+          ],
+          "default": "auto",
+          "description": "Hosting platform. Use auto to detect from the git remote URL."
         },
-        "gitlabmergeplus.token": {
+        "gitmerge.instanceUrl": {
           "type": "string",
           "default": "",
-          "description": "Access token to use to connect to the Gitlab API"
+          "description": "Optional custom base URL (self-managed GitLab or GitHub Enterprise)."
+        },
+        "gitmerge.token": {
+          "type": "string",
+          "default": "",
+          "description": "Personal access token for GitLab or GitHub"
         }
       }
     },
     "menus": {
       "view/title": [
         {
-          "command": "gitlabmerge.repository",
-          "when": "view == gitlabmerge"
+          "command": "gitmerge.repository",
+          "when": "view == gitmerge"
         },
         {
-          "command": "gitlabmerge.merge.requests",
-          "when": "view == gitlabmerge"
+          "command": "gitmerge.merge.requests",
+          "when": "view == gitmerge"
         },
         {
-          "command": "gitlabmerge.refresh",
-          "when": "view == gitlabmerge",
+          "command": "gitmerge.showInfo",
+          "when": "view == gitmerge",
           "group": "navigation"
         },
         {
-          "command": "gitlabmerge.refreshMrs",
-          "when": "view == gitlabmerge.merge",
+          "command": "gitmerge.clearForm",
+          "when": "view == gitmerge",
+          "group": "navigation"
+        },
+        {
+          "command": "gitmerge.refresh",
+          "when": "view == gitmerge",
+          "group": "navigation"
+        },
+        {
+          "command": "gitmerge.showInfo",
+          "when": "view == gitmerge.merge",
+          "group": "navigation"
+        },
+        {
+          "command": "gitmerge.refreshMrs",
+          "when": "view == gitmerge.merge",
           "group": "navigation"
         }
       ]
     },
     "commands": [
       {
-        "command": "gitlabmerge.repository",
+        "command": "gitmerge.repository",
         "title": "Repository"
       },
       {
-        "command": "gitlabmerge.merge.requests",
+        "command": "gitmerge.merge.requests",
         "title": "Merge Requests"
       },
       {
-        "command": "gitlabmerge.refresh",
+        "command": "gitmerge.showInfo",
+        "title": "Setup Info",
+        "icon": "$(info)"
+      },
+      {
+        "command": "gitmerge.clearForm",
+        "title": "Clear Form",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "gitmerge.refresh",
         "title": "Refresh",
         "icon": "$(refresh)"
       },
       {
-        "command": "gitlabmerge.refreshMrs",
+        "command": "gitmerge.refreshMrs",
         "title": "Refresh Merge Requests",
         "icon": "$(refresh)"
       }
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run package",
+    "vscode:prepublish": "npm run copy-toolkit && npm run package",
+    "copy-toolkit": "cp node_modules/@vscode/webview-ui-toolkit/dist/toolkit.js src/assets/toolkit.js",
     "compile": "webpack",
     "watch": "NODE_OPTIONS=--openssl-legacy-provider webpack --watch",
     "package": "webpack --mode production --devtool hidden-source-map",
@@ -128,6 +164,7 @@
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
+    "@vscode/webview-ui-toolkit": "^1.4.0",
     "axios": "^1.8.4"
   }
 }

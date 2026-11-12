@@ -1,14 +1,6 @@
-:root {
-    --ss-font-color: var(--vscode-input-foreground);
-}
-
 body {
-    --mrt-border-color: rgba(100, 100, 100, .22);
+    --mrt-border-color: var(--vscode-widget-border, rgba(128, 128, 128, 0.35));
     overflow-x: hidden;
-}
-
-.vscode-dark {
-    --mrt-border-color: rgba(128, 128, 128, .40);
 }
 
 .mrt-wrap {
@@ -22,7 +14,6 @@ body {
 .mrt-form.hidden {
     display: none;
 }
-
 
 .mrt-wrap .mrt-form {
     display: block;
@@ -40,23 +31,63 @@ body {
     display: block;
 }
 
-.mrt-tips p {
-    margin-top: 10px;
-    line-height: 1.4em;
-    color: var(--vscode-editor-foreground);
+.gm-form-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-bottom: 24px;
 }
 
-.mrt-tips button {
-    margin-top: 10px;
+.gm-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 18px;
 }
 
-.mrt-label {
-    margin: 10px 0;
+vscode-text-field,
+vscode-text-area,
+vscode-dropdown,
+vscode-button,
+.setting-btn {
+    width: 100%;
+}
+
+.gm-hint {
+    margin: 0;
+    font-size: 0.92em;
     color: var(--vscode-descriptionForeground);
 }
 
-textarea {
-    resize: none;
+.gm-multi-select {
+    display: block;
+    width: 100%;
+    min-height: 7.5rem;
+    padding: 6px 8px;
+    font-family: var(--vscode-font-family);
+    font-size: var(--vscode-font-size);
+    color: var(--vscode-dropdown-foreground, var(--vscode-foreground));
+    background-color: var(--vscode-dropdown-background, var(--vscode-input-background));
+    border: 1px solid var(--vscode-dropdown-border, var(--vscode-widget-border, transparent));
+    border-radius: var(--gm-border-radius);
+    outline-color: var(--vscode-focusBorder);
+}
+
+.gm-multi-select option {
+    padding: 4px 8px;
+    color: var(--vscode-dropdown-foreground, var(--vscode-foreground));
+    background-color: var(--vscode-dropdown-listBackground, var(--vscode-quickInput-background, var(--vscode-editor-background)));
+}
+
+.gm-multi-select option:checked {
+    color: var(--vscode-list-activeSelectionForeground, var(--vscode-foreground));
+    background-color: var(--vscode-list-activeSelectionBackground);
+}
+
+.mrt-tips p {
+    margin-top: 12px;
+    line-height: 1.5;
+    color: var(--vscode-editor-foreground);
 }
 
 .mrt-assignee-id,
@@ -69,24 +100,30 @@ textarea {
     position: absolute;
 }
 
-.mrt-user-select {
+.mrt-picker-select {
     position: relative;
 }
 
+.mrt-picker-display,
 .mrt-assignee-name,
-.mrt-reviewer-name {
-    height: 18px;
+.mrt-reviewer-name,
+.mrt-source-branch-name,
+.mrt-target-branch-name {
+    min-height: 18px;
     box-sizing: content-box;
     line-height: 18px;
     padding: var(--input-padding-vertical) var(--input-padding-horizontal);
     color: var(--vscode-input-foreground);
     background-color: var(--vscode-input-background);
-    border: 1px solid var(--vscode-input-border, transparent);
+    border: 1px solid var(--vscode-input-border, var(--vscode-widget-border, transparent));
     border-radius: var(--gm-border-radius);
-    -webkit-border-radius: var(--gm-border-radius);
-    -moz-border-radius: var(--gm-border-radius);
-    -ms-border-radius: var(--gm-border-radius);
-    -o-border-radius: var(--gm-border-radius);
+    cursor: pointer;
+}
+
+.mrt-picker-display.placeholder,
+.mrt-source-branch-name.placeholder,
+.mrt-target-branch-name.placeholder {
+    color: var(--vscode-input-placeholderForeground);
 }
 
 .del-icon {
@@ -109,7 +146,16 @@ textarea {
     display: none;
 }
 
-.mrt-user-select .user-wrap {
+.mrt-source-branch-value,
+.mrt-target-branch-value {
+    position: absolute;
+    opacity: 0;
+    height: 0;
+    width: 0;
+    pointer-events: none;
+}
+
+.mrt-picker-select .picker-wrap {
     display: flex;
     flex-direction: column;
     position: absolute;
@@ -119,13 +165,14 @@ textarea {
     margin-top: 6px;
     overflow: hidden;
     transition: height 0.3s;
-    background-color: var(--vscode-sideBar-background);
-    border: 1px solid var(--vscode-input-border, transparent);
+    background-color: var(--vscode-dropdown-listBackground, var(--vscode-quickInput-background));
+    border: 1px solid var(--vscode-dropdown-border, var(--vscode-widget-border, transparent));
     border-radius: var(--gm-border-radius);
     opacity: 0;
+    z-index: 20;
 }
 
-.mrt-user-select .list {
+.mrt-picker-select .list {
     flex: 1;
     position: relative;
 }
@@ -147,29 +194,35 @@ textarea {
     overflow: auto;
 }
 
-.mrt-user-select.show .user-wrap {
+.mrt-picker-select.show .picker-wrap {
     opacity: 1;
     height: 200px;
-    z-index: 2;
+    z-index: 30;
 }
 
-.mrt-user-item {
+.mrt-user-item,
+.mrt-branch-item {
     display: flex;
-    line-height: 1.4;
-    padding: 4px 6px;
+    line-height: 1.45;
+    padding: 8px 10px;
     flex-wrap: wrap;
     margin: 0 6px;
     cursor: pointer;
     border-radius: var(--gm-border-radius);
+    color: var(--vscode-foreground);
 }
 
-.mrt-user-item:hover, .mrt-user-item.hover {
-    background: var(--vscode-list-activeSelectionBackground);
+.mrt-user-item:hover,
+.mrt-user-item.hover,
+.mrt-branch-item:hover,
+.mrt-branch-item.hover {
+    background: var(--vscode-list-hoverBackground);
 }
 
-.mrt-user-item.active {
-    color: var(--vscode-button-foreground);
-    background-color: var(--vscode-button-background);
+.mrt-user-item.active,
+.mrt-branch-item.active {
+    color: var(--vscode-list-activeSelectionForeground, var(--vscode-button-foreground));
+    background-color: var(--vscode-list-activeSelectionBackground, var(--vscode-button-background));
 }
 
 .mrt-user-list .name {
@@ -177,38 +230,59 @@ textarea {
 }
 
 .mrt-user-list .username {
-    opacity: 0.5;
+    opacity: 0.65;
 }
 
-.mrt-user-select .empty {
+.mrt-picker-select .empty {
     display: none;
     line-height: 2;
     color: var(--vscode-descriptionForeground);
     text-align: center;
 }
 
-.mrt-user-select .empty.show {
+.mrt-picker-select .empty.show {
     display: block;
 }
 
-.mrt-checkbox {
-    display: flex;
-    margin: 10px 0;
+vscode-button.mrt-btn {
+    margin-top: 8px;
+    display: inline-flex;
+    width: 100%;
+    height: 26px;
+    min-height: 26px;
+    max-height: 26px;
+    vertical-align: top;
 }
 
-.mrt-checkbox input {
-    margin: 2px 4px 0 0;
-    cursor: pointer;
+vscode-button.mrt-btn::part(control) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 100%;
+    height: 100%;
+    width: 100%;
+    line-height: 1.2;
 }
 
-.mrt-checkbox label {
-    cursor: pointer;
-    user-select: none;
-    color: var(--vscode-descriptionForeground);
+.mrt-btn--busy {
+    cursor: default;
 }
 
-.mrt-btn {
-    margin-bottom: 30px;
+.gm-submit-inner {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 1.2;
+}
+
+vscode-button.mrt-btn vscode-progress-ring.gm-submit-spinner {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    margin: 0;
 }
 
 .mrt-repo {
@@ -230,26 +304,4 @@ textarea {
 .mrt-repo-name.active {
     border-bottom: 2.5px solid var(--vscode-button-background);
     color: var(--vscode-tab-activeForeground);
-}
-
-.input-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.mrt-title {
-    width: 100%;
-    padding-right: 2rem;
-    /* Add padding to prevent text overlap with the icon */
-    box-sizing: border-box;
-}
-
-.clear-icon {
-    position: absolute;
-    right: 0.5rem;
-    cursor: pointer;
-    width: 1rem;
-    height: 1rem;
-    color: var(--vscode-input-foreground);
 }

@@ -330,27 +330,55 @@ export const enum GitErrorCodes {
   UnknownPath = 'UnknownPath',
 }
 
+export type GitPlatformSetting = "auto" | "gitlab" | "github";
+
 export interface ExtensionConfig {
-  instanceUrl?: string,
-  token?: string
+  instanceUrl?: string;
+  token?: string;
+  platform?: GitPlatformSetting;
 }
 
 export interface MRParams {
-  source_branch: string,
-  target_branch: string,
-  title: string,
-  assignee_id?: number,
-  reviewer_ids?: number[],
-  description?: string,
-  remove_source_branch?: boolean,
-  allow_collaboration?: boolean,
+  source_branch: string;
+  target_branch: string;
+  title: string;
+  assignee_id?: number;
+  reviewer_ids?: number[];
+  assignee_username?: string;
+  reviewer_username?: string;
+  description?: string;
+  remove_source_branch?: boolean;
+  squash?: boolean;
+  allow_collaboration?: boolean;
+  labels?: string[];
 }
 
 export interface GitInfo {
-  branches: Ref[],
-  currentBranchName: string,
-  projectName: string,
-  url?: string
+  branches: Ref[];
+  currentBranchName: string;
+  projectName: string;
+  projectPath: string;
+  url?: string;
+  platform?: "gitlab" | "github";
+  host?: string;
+}
+
+export interface PlatformUser {
+  id: number;
+  name: string;
+  username: string;
+}
+
+export interface MergeRequestSummary {
+  title: string;
+  source_branch: string;
+  target_branch: string;
+  labels: string[];
+  web_url: string;
+  has_conflicts: boolean;
+  close_id: number;
+  can_merge: boolean;
+  merge_hint?: string;
 }
 
 export interface GitlabProject {

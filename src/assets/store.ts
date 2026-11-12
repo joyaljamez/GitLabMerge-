@@ -1,9 +1,18 @@
 import * as vscode from "vscode";
+import { Platform } from "../remote";
+
+export interface ApiReadyPayload {
+  id: string;
+  platform: Platform;
+  host?: string;
+  projectPath?: string;
+  webBaseUrl?: string;
+}
 
 export class SharedStore {
   private static _instance: SharedStore;
 
-  private _onReady = new vscode.EventEmitter<string>();
+  private _onReady = new vscode.EventEmitter<ApiReadyPayload>();
   public onReady = this._onReady.event;
 
   private _onRefresh = new vscode.EventEmitter<void>();
@@ -11,6 +20,7 @@ export class SharedStore {
 
   public apiId: number | null = null;
   public isReady = false;
+  private lastReady?: ApiReadyPayload;
 
   private constructor() {}
 
@@ -21,10 +31,27 @@ export class SharedStore {
     return SharedStore._instance;
   }
 
-  markReady(id: number) {
+  markReady(
+    id: number,
+    platform: Platform,
+    host?: string,
+    projectPath?: string,
+    webBaseUrl?: string
+  ) {
     this.apiId = id;
     this.isReady = true;
-    this._onReady.fire(id.toString());
+    this.lastReady = {
+      id: id.toString(),
+      platform,
+      host,
+      projectPath,
+      webBaseUrl,
+    };
+    this._onReady.fire(this.lastReady);
+  }
+
+  getLastReady(): ApiReadyPayload | undefined {
+    return this.lastReady;
   }
 
   triggerRefresh() {

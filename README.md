@@ -1,65 +1,54 @@
-# GitLabMerge+ README
+# GitMerge
 
-**GitLab Merge Request Helper for VS Code**
+**GitLab merge requests & GitHub pull requests from VS Code**
 
 **Author:** Joyal James
 
-![Extension Preview](src/assets/view.png)
+---
+
+## Features
+
+### Create Merge Request / Pull Request
+
+- Create an MR or PR directly from VS Code (remote is auto-detected when possible).
+- Auto-fill source branch, title, and common target branches (`master`, `dev`, `develop`).
+- Assignees, reviewers, and labels (GitLab + GitHub).
+- GitLab-only options: delete source branch and squash on merge.
+
+### My Merge Requests
+
+- Lists open merge/pull requests you created for the current repo.
+- Open or copy URLs; conflict hint when the platform reports conflicts.
 
 ---
 
-## 🚀 Features
+## Settings
 
-### 🔧 Create Merge Request
+| Setting | Description |
+| -------- | ------------ |
+| `gitmerge.token` | Personal access token for GitLab or GitHub. |
+| `gitmerge.platform` | `auto` (default), `gitlab`, or `github`. |
+| `gitmerge.instanceUrl` | Optional base URL for self-managed GitLab or GitHub Enterprise. |
 
-- Create a Merge Request directly from VS Code.
-- **Auto-fill** on refresh:
+Legacy keys `gitlabmergeplus.token` and `gitlabmergeplus.instanceUrl` are still read as fallbacks.
 
-  - Source branch and title.
-  - Target branch (`master`, `dev`, `develop`).
+### Tokens
 
-- Select project members as **reviewers** or **assignees**.
-- Add **multiple labels** with ease.
+- **GitHub:** Classic PAT with `repo`, or a [fine-grained token](https://github.com/settings/tokens?type=beta) with **Pull requests** and **Contents** (Read and write) for this repo (authorize SSO on the org if needed). Merge/close need write access, not read-only `public_repo`.
+- **GitLab:** Token with `api` and `read_user` — [gitlab.com](https://gitlab.com/-/profile/personal_access_tokens?name=GitMerge&scopes=api,read_user) or your instance.
 
-### 📂 My Merge Requests
-
-- View a list of all merge requests created by you.
-- Expand a merge request to:
-
-  - View MR details.
-  - Copy or open MR URL.
-
-- 🔴 **Red Arrow** indicator for merge conflicts.
-
----
-
-## ⚙️ Extension Settings
-
-| Setting                       | Description                                                                                                 |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `gitlabmergeplus.token`       | Access token to connect to the GitLab API. Make sure to use a token created from your GitLab account's main settings (not a project-specific token) to ensure that all merge requests—created from both the web and the extension—are tracked properly. Generate one from **GitLab → Profile Settings → Access Tokens.**. |
-| `gitlabmergeplus.instanceUrl` | (Optional) Custom GitLab domain URL (e.g., `https://git.yourdomain.com`).                                   |
-
-### VS Code Settings UI
-
-![VS Code Settings](src/assets/setting.png) |
-
-### Example: `settings.json`
+### Example `settings.json`
 
 ```json
 {
-  "gitlabmergeplus.token": "YOUR_ACCESS_TOKEN",
-  "gitlabmergeplus.instanceUrl": "https://gitlab.com"
+  "gitmerge.platform": "auto",
+  "gitmerge.token": "YOUR_ACCESS_TOKEN",
+  "gitmerge.instanceUrl": ""
 }
 ```
 
 ---
 
-## 🔗 Links
+## Links
 
-- 🧩 [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=JoyalJames.GitLabMerge)
-- 🐙 [GitHub Repository - GitLabMerge+](https://github.com/joyaljamez/GitLabMerge-)
-
----
-
-
+- [GitHub repository](https://github.com/joyaljamez/GitLabMerge-)
