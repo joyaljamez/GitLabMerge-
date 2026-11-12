@@ -4,6 +4,8 @@
 
 **Author:** Joyal James
 
+![GitMerge create form and My Merge Requests panel](docs/screenshot.png)
+
 ---
 
 ## Features
