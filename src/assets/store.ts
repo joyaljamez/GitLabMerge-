@@ -31,6 +31,12 @@ export class SharedStore {
     return SharedStore._instance;
   }
 
+  clearReady() {
+    this.apiId = null;
+    this.isReady = false;
+    this.lastReady = undefined;
+  }
+
   markReady(
     id: number,
     platform: Platform,

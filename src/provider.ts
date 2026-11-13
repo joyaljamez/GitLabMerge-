@@ -2,12 +2,16 @@ import * as vscode from "vscode";
 import GitExtensionWrap from "./git";
 import { MRParams, ExtensionConfig } from "./type";
 import { createApi, GitMergeApi } from "./api";
-import { validateForm, infoModalItems, log, withProgress } from "./utils";
+import {
+  validateForm,
+  infoModalItems,
+  promptRepoSetupFailure,
+  withProgress,
+} from "./utils";
 import { SharedStore } from "./assets/store";
 import { getExtensionConfig } from "./config";
 import { Platform } from "./remote";
 
-let n = 0;
 export default class MergeProvider implements vscode.WebviewViewProvider {
   public static readonly viewType: string = "gitmerge";
   private _view?: vscode.WebviewView;
@@ -239,7 +243,7 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  async init(repoPath?: string) {
+  async init(repoPath?: string): Promise<void> {
     this.getConfig();
 
     const tipsVisible = !this.config.token;
@@ -250,29 +254,37 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
 
     this.repoPath = repoPath || this.repoPath || "";
 
-    const { progress, res: promiseRes } = await withProgress(
+    const { res: promiseRes } = await withProgress(
       "Initializing Git Repository."
     );
-    const fn = async () => {
-      try {
-        this.git = new GitExtensionWrap();
-        await this.git.init(this.repoPath || "", (paths) => {
-          this.postMsg("updateRepoTab", paths);
-        });
-        await this.setupRepo();
-      } catch (err) {}
-      if (n < 10 && !this.api?.id) {
-        n++;
-        await new Promise((res) => setTimeout(res, 1000));
-        await fn();
-      }
-    };
-    await fn();
-    if (!this.api?.id) {
-      log("Failed to fetch repository info!");
+    let ok = false;
+    try {
+      this.git = new GitExtensionWrap();
+      await this.git.init(this.repoPath || "", (paths) => {
+        this.postMsg("updateRepoTab", paths);
+      });
+      await this.setupRepo();
+      ok = Boolean(this.api?.id);
+    } catch {
+      ok = false;
     }
-    this.postMsg("viewReady", true);
     promiseRes();
+
+    if (ok) {
+      this.postMsg("viewReady", true);
+      return;
+    }
+
+    SharedStore.instance.clearReady();
+    this.api = undefined;
+
+    const choice = await promptRepoSetupFailure();
+    if (choice?.title === "Retry") {
+      return this.init(repoPath);
+    }
+
+    this.postMsg("viewTips", true);
+    this.postMsg("viewReady", true);
   }
 
   async setupRepo(path?: string) {
@@ -303,7 +315,11 @@ export default class MergeProvider implements vscode.WebviewViewProvider {
     this.api = createApi(this.platform, this.config, host);
     const lookupPath = projectPath || projectName;
     this.projectPath = lookupPath;
-    await this.api.getProject(lookupPath, url || "");
+    try {
+      await this.api.getProject(lookupPath, url || "");
+    } catch {
+      this.api.id = undefined;
+    }
 
     if (this.api.id) {
       this.getBranches(branches);

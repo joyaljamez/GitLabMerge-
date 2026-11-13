@@ -6,7 +6,7 @@ import {
   PlatformUser,
 } from "./type";
 import axios, { AxiosInstance, AxiosResponse } from "axios";
-import { handleResError } from "./utils";
+import { handleResError, isSilentApiError } from "./utils";
 import { apiBaseUrl, Platform } from "./remote";
 
 interface GithubRepo {
@@ -63,6 +63,9 @@ export default class GithubApi {
     this.axios.interceptors.response.use(
       (res) => res,
       (err) => {
+        if (isSilentApiError(err.config)) {
+          return Promise.reject(err);
+        }
         const content = err?.response?.data;
         const msg =
           typeof content?.message === "string" ? content.message : undefined;
@@ -82,11 +85,15 @@ export default class GithubApi {
     const [owner, repo] = projectPath.split("/");
     this.owner = owner;
     this.repo = repo;
-    return this.axios.get<GithubRepo>(`/repos/${owner}/${repo}`).then((res) => {
-      this.id = res.data.id;
-      const p = res.data.permissions;
-      this.repoWrite = Boolean(p?.push || p?.admin || p?.maintain);
-    });
+    return this.axios
+      .get<GithubRepo>(`/repos/${owner}/${repo}`, {
+        headers: { "X-GitMerge-Silent-Error": "1" },
+      })
+      .then((res) => {
+        this.id = res.data.id;
+        const p = res.data.permissions;
+        this.repoWrite = Boolean(p?.push || p?.admin || p?.maintain);
+      });
   }
 
   async getUsers(name?: string) {

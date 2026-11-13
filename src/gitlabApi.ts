@@ -8,7 +8,7 @@ import {
   PlatformUser,
 } from "./type";
 import axios, { AxiosInstance, AxiosResponse } from "axios";
-import { handleResError } from "./utils";
+import { handleResError, isSilentApiError } from "./utils";
 import { apiBaseUrl, Platform } from "./remote";
 
 export default class GitlabApi {
@@ -27,6 +27,9 @@ export default class GitlabApi {
     this.axios.interceptors.response.use(
       (res) => res,
       (err) => {
+        if (isSilentApiError(err.config)) {
+          return Promise.reject(err);
+        }
         const content = err?.response?.data;
         handleResError(content || err.message);
         return Promise.reject(err);
@@ -38,6 +41,7 @@ export default class GitlabApi {
     const searchName = projectPath.split("/").pop() || projectPath;
     return this.axios
       .get<GitlabProject[]>(`/projects`, {
+        headers: { "X-GitMerge-Silent-Error": "1" },
         params: { search: searchName },
       })
       .then((res) => {

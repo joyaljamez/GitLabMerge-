@@ -3,6 +3,29 @@ import * as vscode from 'vscode';
 
 const modalOptions: vscode.MessageOptions = { modal: true };
 
+/** Skip global error popups; caller shows a single message instead. */
+export const SILENT_API_ERROR = 'X-GitMerge-Silent-Error';
+
+export function isSilentApiError(
+    config?: { headers?: Record<string, unknown> }
+): boolean {
+    return config?.headers?.[SILENT_API_ERROR] === '1';
+}
+
+const REPO_SETUP_MSG =
+    'Unable to read repo. Please check gitmerge.token, gitmerge.platform, and gitmerge.instanceUrl.';
+
+export function promptRepoSetupFailure(): Thenable<vscode.MessageItem | undefined> {
+    const detail =
+        'Verify the access token can read this repository on the selected platform.';
+    return vscode.window.showErrorMessage(
+        REPO_SETUP_MSG,
+        { modal: true, detail },
+        { title: 'Cancel', isCloseAffordance: true },
+        { title: 'Retry' }
+    );
+}
+
 export const log = (msg: string, ...items: string[]) => {
     return vscode.window.showErrorMessage(msg, modalOptions, ...items);
 };
@@ -79,7 +102,7 @@ export function handleResError(data: any) {
     return log(data);
   }
     if (!data) {
-        return log('Failed to create merge request!');
+        return log('Failed to create merge request.');
     }
     if (typeof data.message === 'string') {
         return log(data.message);

@@ -129,10 +129,14 @@ export default class ListMRProvider implements vscode.WebviewViewProvider {
     const config = getExtensionConfig();
     this.api = createApi(payload.platform, config, payload.host);
     if (payload.projectPath) {
-      await this.api.getProject(
-        payload.projectPath,
-        payload.webBaseUrl || ""
-      );
+      try {
+        await this.api.getProject(
+          payload.projectPath,
+          payload.webBaseUrl || ""
+        );
+      } catch {
+        this.api.id = undefined;
+      }
     } else if (payload.id) {
       this.api.id = Number(payload.id);
     }
