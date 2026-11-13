@@ -1,8 +1,12 @@
 # Change Log
 
+## 4.0.3
+
+- Marketplace extension id `joyal-james.gitmerge-vscode` (package name `gitmerge-vscode`).
+
 ## 4.0.2
 
-- Marketplace publisher id set to `joyal-james` (extension id `joyal-james.gitmerge`).
+- Marketplace publisher id set to `joyal-james`.
 
 ## 4.0.1
 
