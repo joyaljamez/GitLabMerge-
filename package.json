@@ -3,7 +3,7 @@
   "displayName": "GitMerge",
   "description": "Create GitLab merge requests and GitHub pull requests from VS Code",
   "publisher": "JoyalJames",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "icon": "src/assets/icon.png",
   "repository": "https://github.com/joyaljamez/GitLabMerge-.git",
   "engines": {

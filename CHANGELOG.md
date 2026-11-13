@@ -1,5 +1,10 @@
 # Change Log
 
+## 4.0.1
+
+- Stop repeated API error popups on repo init; one modal with **Retry** / **Cancel** when the repo or token cannot be loaded.
+- Submit button loading state; PR success dialog and My MRs merge/close UX improvements.
+
 ## 4.0.0
 
 - Rebrand to **GitMerge** with new icon and activity bar logo.
