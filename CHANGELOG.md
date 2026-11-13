@@ -1,5 +1,9 @@
 # Change Log
 
+## 4.0.2
+
+- Marketplace publisher id set to `joyal-james` (extension id `joyal-james.gitmerge`).
+
 ## 4.0.1
 
 - Stop repeated API error popups on repo init; one modal with **Retry** / **Cancel** when the repo or token cannot be loaded.
