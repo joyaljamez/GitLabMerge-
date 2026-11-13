@@ -1,8 +1,20 @@
 # Change Log
 
+## 4.0.7
+
+- Marketplace id `JoyalJames.gitmerge-vscode` (package name `gitmerge-vscode`; display name **Git Merge — GitLab & GitHub**).
+
+## 4.0.6
+
+- Marketplace listing display name **GitMerge (GitLab & GitHub)**.
+
+## 4.0.5
+
+- Package name change (Marketplace reserves the short name `gitmerge`).
+
 ## 4.0.4
 
-- Release under `JoyalJames.gitmerge` (init error handling and UX from 4.0.1).
+- Release under publisher `JoyalJames` (init error handling and UX from 4.0.1).
 
 ## 4.0.1
 

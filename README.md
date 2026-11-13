@@ -51,6 +51,10 @@ Legacy keys `gitlabmergeplus.token` and `gitlabmergeplus.instanceUrl` are still 
 
 ---
 
+## Install
+
+- [VS Marketplace – GitMerge](https://marketplace.visualstudio.com/items?itemName=JoyalJames.gitmerge-vscode) — `ext install JoyalJames.gitmerge-vscode`
+
 ## Links
 
 - [GitHub repository](https://github.com/joyaljamez/GitLabMerge-)
