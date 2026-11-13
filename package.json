@@ -1,9 +1,9 @@
 {
-  "name": "gitmerge-vscode",
+  "name": "gitmerge",
   "displayName": "GitMerge",
   "description": "Create GitLab merge requests and GitHub pull requests from VS Code",
-  "publisher": "joyal-james",
-  "version": "4.0.3",
+  "publisher": "JoyalJames",
+  "version": "4.0.4",
   "icon": "src/assets/icon.png",
   "repository": "https://github.com/joyaljamez/GitLabMerge-.git",
   "engines": {
